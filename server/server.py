@@ -47,3 +47,10 @@ def mfa():
     mfa_token = request.form["mfaToken"]
     # Complete the login process with the MFA token
     return jsonify(message="MFA token received and processed")
+
+
+@app.route("/api/simple", methods=["GET"])
+def simple():
+    response = jsonify(message="Simple request received")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response

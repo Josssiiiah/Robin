@@ -9,7 +9,8 @@
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc",
-    "push": "drizzle-kit push:mysql"
+    "push": "drizzle-kit push:mysql",
+    "fmt": "prettier --write \"app/**/*.{tsx,ts,css}\" \"drizzle/**/*.ts\" \"functions/**/*.ts\" \"sst.config.ts\" --plugin=prettier-plugin-tailwindcss"
   },
   "dependencies": {
     "@remix-run/css-bundle": "^2.8.0",
@@ -17,10 +18,12 @@
     "@remix-run/react": "^2.8.0",
     "@remix-run/serve": "^2.8.0",
     "@supabase/supabase-js": "^2.39.7",
+    "@tanstack/react-query": "^5.24.8",
     "drizzle-kit": "^0.20.14",
     "drizzle-orm": "^0.29.4",
     "isbot": "^4.1.0",
     "postgres": "^3.4.3",
+    "prettier-plugin-tailwindcss": "^0.5.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
