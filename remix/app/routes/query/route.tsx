@@ -16,40 +16,50 @@ export default function query() {
     })
     if (isPending) return 'Loading...'
     if (error) return 'Error: '
-    // Group trades by the 'order_created_at' property
+    if (!data || !data.message) return 'No data found';
+
+      // Group trades by the 'order_created_at' property and calculate profit/loss
+      // Dynamically calculate and group trades by date
     const groupedTrades = data.message.reduce((acc: any, item: any) => {
-        // Extract just the date part if necessary
-        const date = item.order_created_at.split('T')[0]; // Adjust according to how you want to group them
+        const date = item.order_created_at.split('T')[0]; // Extract date part
         if (!acc[date]) {
-            acc[date] = [];
+            acc[date] = { trades: [], totalBuy: 0, totalSell: 0 };
         }
-        acc[date].push(item);
+        const amount = parseFloat(item.price) * parseFloat(item.processed_quantity);
+        acc[date].trades.push(item);
+        if (item.side === 'buy') {
+            acc[date].totalBuy += amount;
+        } else {
+            acc[date].totalSell += amount;
+        }
         return acc;
     }, {});
 
     return (
         <div>
-            <h1 className="text-3xl">Query</h1>
-            <div className="flex flex-wrap -mx-2"> {/* Use flexbox for side by side layout */}
-                {Object.entries(groupedTrades).map(([date, trades], index) => (
-                    <div key={index} className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4"> {/* Adjust widths as needed */}
-                        <div className="p-4 shadow rounded bg-white">
-                            <h2 className="text-xl font-bold mb-4">{date}</h2> {/* Display the group date */}
-                            {(trades as any[]).map((trade, tradeIndex) => ( // Add type annotation for trades
+            <h1 className="text-3xl font-bold mb-4">Query Results</h1>
+            <div className="flex flex-wrap">
+                {Object.entries(groupedTrades).map(([date, info]: [string, any], index) => (
+                    <div key={index} className="w-full md:w-1/2 lg:w-1/3 p-2">
+                        <div className="bg-white shadow rounded p-4">
+                            <h2 className="font-bold text-xl mb-2">{date}</h2>
+                            <p className="mb-4">Profit/Loss: ${((info.totalSell - info.totalBuy) * 100).toFixed(2)}</p>
+                            {/* {info.trades.map((trade: any, tradeIndex: any) => (
                                 <div key={tradeIndex} className="mb-3">
-                                    <p><strong>Symbol:</strong> {trade.symbol}</p>
-                                    <p><strong>Order Time:</strong> {trade.order_created_at}</p>
-                                    <p><strong>Price:</strong> {trade.price}</p>
-                                    <p><strong>Quantity:</strong> {trade.processed_quantity}</p>
-                                    <p><strong>Side:</strong> {trade.side}</p>
+                                    <p>Symbol: {trade.symbol}</p>
+                                    <p>Order Time: {trade.order_created_at}</p>
+                                    <p>Price: {trade.price}</p>
+                                    <p>Quantity: {trade.processed_quantity}</p>
+                                    <p>Side: {trade.side}</p>
                                 </div>
-                            ))}
+                            ))} */}
                         </div>
                     </div>
                 ))}
             </div>
-        </div>   
+        </div>
     );
-    }
+}
+
  {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
             {/* <h1>{data.message}</h1> */}
