@@ -1,9 +1,11 @@
 from dotenv import load_dotenv
 import os
+import random
 import robin_stocks.robinhood as r
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from supabase import create_client
+
 
 load_dotenv()
 
@@ -57,5 +59,11 @@ def simple():
 
 @app.route("/api/mutate", methods=["POST"])
 def test():
-    supabase.table("test").insert({"id":"900"}).execute()
+    random1 = random.randint(1, 100) 
+    random2 = random.randint(1, 10) 
+
+    t = random1 * random2
+    supabase.table("test").insert({"id":t}).execute()
+    return jsonify(message="Mutate request received")
+
 
