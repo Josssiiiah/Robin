@@ -1,9 +1,6 @@
 from supabase import create_client
 from dotenv import load_dotenv
-import multiprocessing
-import time
 import robin_stocks.robinhood as r
-from flask import jsonify
 from pathlib import Path
 from csv import writer
 from datetime import date
@@ -33,13 +30,8 @@ def get_option_orders(info=None):
     a list of strings is returned where the strings are the value of the key that matches info.
 
     """
-    payload = {
-        'interval': None,
-        'span': 'day',
-        'bounds': 'regular'
-    }
     url = "https://api.robinhood.com/options/orders/"
-    data = r.request_get(url, 'results', payload)
+    data = r.request_get(url, 'results')
     return(r.filter_data(data, info))
 
 
@@ -76,9 +68,6 @@ def create_absolute_csv(dir_path, file_name, order_type):
     return(Path.joinpath(directory, file_name))
 
 def export(dir_path, file_name=None):
-    # start_time = time.time()  
-    # max_duration = 5
-
     file_path = create_absolute_csv(dir_path, file_name, 'option')
     all_orders = get_option_orders()
     with open(file_path, 'w', newline='') as f:
@@ -99,10 +88,6 @@ def export(dir_path, file_name=None):
             'processed_quantity'
         ])
         for order in all_orders:
-            # if time.time() - start_time > max_duration:
-            #     print("Time limit reached")
-            #     break
-
             if order['state'] == 'filled':
                 for leg in order['legs']:
                     instrument_data = r.request_get(leg['option'])
@@ -122,16 +107,25 @@ def export(dir_path, file_name=None):
                         order['processed_quantity']
                     ])
         f.close()
+
+def get_orders():
+    all_orders = get_option_orders()
+    for order in all_orders:
+        if order['state'] == 'filled':
+            for leg in order['legs']:
+                    print({
+                        'chain_symbol': order['chain_symbol'],
+                        'side': leg['side'],
+                        'order_created_at': order['created_at'],
+                        'price': order['price'],
+                        'processed_quantity': order['processed_quantity']
+                    })
+
  
 
-if __name__ ==  '__main__':
-#     response = multiprocessing.Process(target=export, name="func", args=("./",))
-#     print("ran")
-#     response.start()
-#     response.join()
-#     print("done")
-   
+if __name__ ==  '__main__':  
     print("start")
-    export("./")
+    # export("./")
+    get_orders()
     print("done")
 
