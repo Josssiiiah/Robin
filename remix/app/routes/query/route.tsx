@@ -20,8 +20,17 @@ export default function query() {
         <div>
             {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
             {/* <h1>{data.message}</h1> */}
-            <h1>Query</h1>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
+            <h1 className="text-3xl">Query</h1>
+            {/* Iterate over data.message and render each object */}
+            {data.message.map((item: any, index: any) => (
+                <div key={index} className="mb-4 p-4 shadow rounded bg-white">
+                    <p><strong>Chain Symbol:</strong> {item.chain_symbol}</p>
+                    <p><strong>Order Created At:</strong> {item.order_created_at}</p>
+                    <p><strong>Price:</strong> {item.price}</p>
+                    <p><strong>Processed Quantity:</strong> {item.processed_quantity}</p>
+                    <p><strong>Side:</strong> {item.side}</p>
+                </div>
+            ))}
         </div>   
     );
 }
