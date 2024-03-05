@@ -148,7 +148,7 @@ def showStocks():
             if order['state'] == 'filled':
                 for leg in order['legs']:
                         i = ({
-                            'chain_symbol': order['chain_symbol'],
+                            'symbol': order['chain_symbol'],
                             'side': leg['side'],
                             'order_created_at': order['created_at'],
                             'price': order['price'],
