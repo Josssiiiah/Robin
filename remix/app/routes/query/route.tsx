@@ -5,9 +5,12 @@ import { asc } from "drizzle-orm";
 import {
     useQuery, useMutation
   } from '@tanstack/react-query'
+import { Calendar } from "~/components/ui/calendar";
 
 
 export default function query() {
+    const [date, setDate] = React.useState<Date | undefined>(new Date())
+
     const {data, isPending, error } = useQuery({
         queryKey: ['test'],
         queryFn: () => fetch("http://127.0.0.1:5000/api/showStocks").then((res) => 
@@ -35,6 +38,14 @@ export default function query() {
         return acc;
     }, {});
 
+     // Format the selected date to match the key format in groupedTrades
+     const selectedDateStr = date instanceof Date ? date.toISOString().split('T')[0] : '';
+
+     // Find the P&L for the selected date
+     const pnl = groupedTrades[selectedDateStr] ? ((groupedTrades[selectedDateStr].totalSell - groupedTrades[selectedDateStr].totalBuy) * 100).toFixed(2) : null;
+
+
+
     return (
         <div>
             <h1 className="text-3xl font-bold mb-4">Query Results</h1>
@@ -57,6 +68,25 @@ export default function query() {
                     </div>
                 ))}
             </div>
+            <div className="flex flex-row">
+                <div>
+                    <h1 className="text-3xl font-bold mb-4">Query Results</h1>
+                    {/* Display Calendar here */}
+                    <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        className="rounded-md border"
+                    />
+                </div>
+                {/* Conditional rendering of the P&L card */}
+                {pnl && (
+                    <div className="mt-4 md:mt-0 md:ml-4 bg-white shadow rounded p-4">
+                        <h2 className="font-bold text-xl mb-2">Profit/Loss for {selectedDateStr}</h2>
+                        <p>Profit/Loss: ${pnl}</p>
+                    </div>
+                )}
+            </div>         
         </div>
     );
 }
