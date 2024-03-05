@@ -34,15 +34,21 @@ def home():
 
 @app.route("/api/login", methods=["POST"])
 def login():
-    username = request.form["username"]
-    password = request.form["password"]
+    username = request.json.get("username")
+    password = request.json.get("password")
+
     # Logic to handle login and possibly MFA here
-    r.login(username, password)
+    data = r.login(username, password)
+    print(data)
     # return(r.get_day_trades())
     # return jsonify(orders=r.get_all_option_orders()) 
 
-    return jsonify(message="Login request received")
+    return jsonify(data)
 
+@app.route("/api/logout", methods=["POST"])
+def logout():
+    r.logout()
+    return jsonify(message="Logged out successfully")
 
 @app.route("/api/mfa", methods=["POST"])
 def mfa():
@@ -53,7 +59,7 @@ def mfa():
 
 @app.route("/api/simple", methods=["GET"])
 def simple():
-    response = jsonify(message="Simple request received yo")
+    response = jsonify(message="Simple request boiiiiii")
     # supabase.table("test").insert({"message":response}).execute()
     return response
 

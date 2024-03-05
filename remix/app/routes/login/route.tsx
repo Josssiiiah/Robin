@@ -10,6 +10,10 @@ export default function Login() {
     const mutation = useMutation({
         mutationFn: () => fetch("http://127.0.0.1:5000/api/login", {
             method: 'POST',
+            // body: JSON.stringify({
+            //     username: "josiahstanford8@gmail.com",
+            //     password: "Coder1633!"
+            // }),
         })
     })
     const onSubmit = () => {
@@ -21,15 +25,18 @@ export default function Login() {
         <div>
             <h1>Login</h1>
             <form onSubmit={onSubmit}>
-                <input type="text" name="username" placeholder="Username" required />
-                <input type="password" name="password" placeholder="Password" required />
+                <input type="text" name="username" placeholder="Username"  />
+                <input type="password" name="password" placeholder="Password"  />
                 <button type="submit">Login</button>
             </form>
 
-            <form action="http://127.0.0.1:5000/api/mfa" method="post">
+            {/* <form action="http://127.0.0.1:5000/api/mfa" method="post">
                 <input type="text" name="mfaToken" placeholder="MFA Token" required />
                 <button type="submit">Submit MFA Token</button>
-            </form>
+            </form> */}
+
+            <h1>Show stocks</h1>
+
         </div>   
     );
 }

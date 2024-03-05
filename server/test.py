@@ -10,3 +10,5 @@ supabase = create_client(url, key)
 
 
 data = supabase.table("test").insert({"id":"500"}).execute()
+
+print()
