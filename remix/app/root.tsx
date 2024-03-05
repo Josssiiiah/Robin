@@ -1,4 +1,5 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
+import { createClient } from "@supabase/supabase-js";
 import type { LinksFunction } from "@remix-run/node";
 import {
   Links,

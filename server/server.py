@@ -39,7 +39,7 @@ def login():
     # Logic to handle login and possibly MFA here
     r.login(username, password)
     # return(r.get_day_trades())
-    return jsonify(orders=r.get_all_option_orders()) 
+    # return jsonify(orders=r.get_all_option_orders()) 
 
     return jsonify(message="Login request received")
 

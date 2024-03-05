@@ -17,6 +17,7 @@ export default function Index() {
         <Link to="/query">Query</Link>
         <Link to="/mutation">Mutation</Link>
         <Link to="/db">DB</Link>
+        <Link to="/login">Login</Link>
       </div>
      
     </div>
