@@ -16,21 +16,40 @@ export default function query() {
     })
     if (isPending) return 'Loading...'
     if (error) return 'Error: '
+    // Group trades by the 'order_created_at' property
+    const groupedTrades = data.message.reduce((acc: any, item: any) => {
+        // Extract just the date part if necessary
+        const date = item.order_created_at.split('T')[0]; // Adjust according to how you want to group them
+        if (!acc[date]) {
+            acc[date] = [];
+        }
+        acc[date].push(item);
+        return acc;
+    }, {});
+
     return (
         <div>
-            {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
-            {/* <h1>{data.message}</h1> */}
             <h1 className="text-3xl">Query</h1>
-            {/* Iterate over data.message and render each object */}
-            {data.message.map((item: any, index: any) => (
-                <div key={index} className="mb-4 p-4 shadow rounded bg-white">
-                    <p><strong>Chain Symbol:</strong> {item.chain_symbol}</p>
-                    <p><strong>Order Created At:</strong> {item.order_created_at}</p>
-                    <p><strong>Price:</strong> {item.price}</p>
-                    <p><strong>Processed Quantity:</strong> {item.processed_quantity}</p>
-                    <p><strong>Side:</strong> {item.side}</p>
-                </div>
-            ))}
+            <div className="flex flex-wrap -mx-2"> {/* Use flexbox for side by side layout */}
+                {Object.entries(groupedTrades).map(([date, trades], index) => (
+                    <div key={index} className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4"> {/* Adjust widths as needed */}
+                        <div className="p-4 shadow rounded bg-white">
+                            <h2 className="text-xl font-bold mb-4">{date}</h2> {/* Display the group date */}
+                            {(trades as any[]).map((trade, tradeIndex) => ( // Add type annotation for trades
+                                <div key={tradeIndex} className="mb-3">
+                                    <p><strong>Symbol:</strong> {trade.symbol}</p>
+                                    <p><strong>Order Time:</strong> {trade.order_created_at}</p>
+                                    <p><strong>Price:</strong> {trade.price}</p>
+                                    <p><strong>Quantity:</strong> {trade.processed_quantity}</p>
+                                    <p><strong>Side:</strong> {trade.side}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>   
     );
-}
+    }
+ {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
+            {/* <h1>{data.message}</h1> */}
