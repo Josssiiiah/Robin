@@ -3,7 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import { createClient } from "@supabase/supabase-js";
 import { asc } from "drizzle-orm";
 import {
-    useQuery,
+    useQuery, useMutation
   } from '@tanstack/react-query'
 
 // Example loader function that fetches data from a server
@@ -30,7 +30,7 @@ import {
 //     };
 // }
 
-export default function test() {
+export default function app() {
     const {data, isPending, error } = useQuery({
         queryKey: ['test'],
         queryFn: () => fetch("http://127.0.0.1:5000/api/simple").then((res) => 
@@ -46,6 +46,20 @@ export default function test() {
         </div>   
     );
 }
+
+// export default function test() {
+//     const {data, isPending, error } = useMutation({
+//         mutationKey: ['test'],
+//         mutationFn: () => fetch("http://127.0.0.1:5000/api/simple").then((res) => 
+//         res.json(),
+//         ),
+//     })
+//     if (isPending) return 'Loading...'
+//     if (error) return 'Error: '
+//     onSuccess: () => {
+//         console.log("Success")
+//     }
+// }
 
 // export default function App() {
 

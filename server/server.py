@@ -2,11 +2,10 @@ from dotenv import load_dotenv
 import os
 import robin_stocks.robinhood as r
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from supabase import create_client
 
 load_dotenv()
-
-
 
 
 url = os.environ.get("SUPABASE_URL")
@@ -22,6 +21,7 @@ supabase = create_client(url, key)
 
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/")
 def home():
@@ -51,6 +51,11 @@ def mfa():
 
 @app.route("/api/simple", methods=["GET"])
 def simple():
-    response = jsonify(message="Simple request received")
-    response.headers.add('Access-Control-Allow-Origin', '*')
+    response = jsonify(message="Simple request received yo")
+    # supabase.table("test").insert({"message":response}).execute()
     return response
+
+@app.route("/api/mutate", methods=["POST"])
+def test():
+    supabase.table("test").insert({"id":"900"}).execute()
+
