@@ -110,16 +110,19 @@ def export(dir_path, file_name=None):
 
 def get_orders():
     all_orders = get_option_orders()
+    arr = []
     for order in all_orders:
         if order['state'] == 'filled':
             for leg in order['legs']:
-                    print({
+                    ret = ({
                         'chain_symbol': order['chain_symbol'],
                         'side': leg['side'],
                         'order_created_at': order['created_at'],
                         'price': order['price'],
                         'processed_quantity': order['processed_quantity']
                     })
+                    arr.append(ret)
+    print(arr)
 
  
 

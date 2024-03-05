@@ -2,8 +2,9 @@ from dotenv import load_dotenv
 import os
 import random
 import robin_stocks.robinhood as r
-import multiprocessing
-import time
+from pathlib import Path
+from csv import writer
+from datetime import date
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from supabase import create_client
@@ -52,6 +53,116 @@ def logout():
     r.logout()
     return jsonify(message="Logged out successfully")
 
+@app.route("/api/showStocks", methods=["GET"])
+def showStocks():
+    # handle login
+    username = "josiahgriggs8@gmail.com"
+    password = "Coder1633!"
+    r.login(username, password)
+
+    # get orders
+    def get_option_orders(info=None):
+        url = "https://api.robinhood.com/options/orders/"
+        data = r.request_get(url, 'results')
+        return(r.filter_data(data, info))
+
+
+    def fix_file_extension(file_name):
+        """ Takes a file extension and makes it end with .csv
+
+        :param file_name: Name of the file.
+        :type file_name: str
+        :returns: Adds or replaces the file suffix with .csv and returns it as a string.
+
+        """
+        path = Path(file_name)
+        path = path.with_suffix('.csv')
+        return path.resolve()
+
+    def create_absolute_csv(dir_path, file_name, order_type):
+        """ Creates a filepath given a directory and file name.
+
+        :param dir_path: Absolute or relative path to the directory the file will be written.
+        :type dir_path: str
+        :param file_name: An optional argument for the name of the file. If not defined, filename will be stock_orders_{current date}
+        :type file_name: str
+        :param file_name: Will be 'stock', 'option', or 'crypto'
+        :type file_name: str
+        :returns: An absolute file path as a string.
+
+        """
+        path = Path(dir_path)
+        directory = path.resolve()
+        if not file_name:
+            file_name = "{}_orders_{}.csv".format(order_type, date.today().strftime('%b-%d-%Y'))
+        else:
+            file_name = fix_file_extension(file_name)
+        return(Path.joinpath(directory, file_name))
+
+    def export(dir_path, file_name=None):
+        file_path = create_absolute_csv(dir_path, file_name, 'option')
+        all_orders = get_option_orders()
+        with open(file_path, 'w', newline='') as f:
+            csv_writer = writer(f)
+            csv_writer.writerow([
+                'chain_symbol',
+                'expiration_date',
+                'strike_price',
+                'option_type',
+                'side',
+                'order_created_at',
+                'direction',
+                'order_quantity',
+                'order_type',
+                'opening_strategy',
+                'closing_strategy',
+                'price',
+                'processed_quantity'
+            ])
+            for order in all_orders:
+                if order['state'] == 'filled':
+                    for leg in order['legs']:
+                        instrument_data = r.request_get(leg['option'])
+                        csv_writer.writerow([
+                            order['chain_symbol'],
+                            instrument_data['expiration_date'],
+                            instrument_data['strike_price'],
+                            instrument_data['type'],
+                            leg['side'],
+                            order['created_at'],
+                            order['direction'],
+                            order['quantity'],
+                            order['type'],
+                            order['opening_strategy'],
+                            order['closing_strategy'],
+                            order['price'],
+                            order['processed_quantity']
+                        ])
+            f.close()
+
+    def get_orders():
+        all_orders = get_option_orders()
+        ret = []
+        for order in all_orders:
+            if order['state'] == 'filled':
+                for leg in order['legs']:
+                        i = ({
+                            'chain_symbol': order['chain_symbol'],
+                            'side': leg['side'],
+                            'order_created_at': order['created_at'],
+                            'price': order['price'],
+                            'processed_quantity': order['processed_quantity']
+                        })
+                        ret.append(i)
+        return ret
+                        
+    response = get_orders()
+    return jsonify(message=response)
+    print("done")
+    
+
+
+
 @app.route("/api/mfa", methods=["POST"])
 def mfa():
     mfa_token = request.form["mfaToken"]
@@ -74,10 +185,3 @@ def test():
     supabase.table("test").insert({"id":t}).execute()
     return jsonify(message="Mutate request received")
 
-@app.route("/api/showStocks", methods=["GET"])
-def showStocks():
-    response = multiprocessing.Process(target=r.export_completed_option_orders("./"), name="func", args=(3,))
-    response.start()
-    time.sleep(3)
-    response.terminate()
-    response.join()

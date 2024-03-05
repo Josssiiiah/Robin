@@ -10,7 +10,7 @@ import {
 export default function query() {
     const {data, isPending, error } = useQuery({
         queryKey: ['test'],
-        queryFn: () => fetch("http://127.0.0.1:5000/api/simple").then((res) => 
+        queryFn: () => fetch("http://127.0.0.1:5000/api/showStocks").then((res) => 
         res.json(),
         ),
     })
@@ -19,7 +19,11 @@ export default function query() {
     return (
         <div>
             {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
-            <h1>{data.message}</h1>
+            {/* <h1>{data.message}</h1> */}
+            <h1>Query</h1>
+            <pre>{JSON.stringify(data, null, 2)}</pre>
+
+
         </div>   
     );
 }
