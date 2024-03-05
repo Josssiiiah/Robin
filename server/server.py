@@ -2,6 +2,8 @@ from dotenv import load_dotenv
 import os
 import random
 import robin_stocks.robinhood as r
+import multiprocessing
+import time
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from supabase import create_client
@@ -72,4 +74,10 @@ def test():
     supabase.table("test").insert({"id":t}).execute()
     return jsonify(message="Mutate request received")
 
-
+@app.route("/api/showStocks", methods=["GET"])
+def showStocks():
+    response = multiprocessing.Process(target=r.export_completed_option_orders("./"), name="func", args=(3,))
+    response.start()
+    time.sleep(3)
+    response.terminate()
+    response.join()
