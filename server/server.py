@@ -4,7 +4,8 @@ import random
 import robin_stocks.robinhood as r
 from pathlib import Path
 from csv import writer
-from datetime import date
+from datetime import date, datetime, timedelta
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from supabase import create_client
@@ -157,7 +158,22 @@ def showStocks():
         return ret
                         
     response = get_orders()
-    return jsonify(message=response)
+    final = []
+    # filter by symbol
+    # for item in response:
+    #     if item['chain_symbol'] == "QQQ":
+    #         final.append(item)
+
+    # filter by last 5 days
+    now = datetime.utcnow()
+
+    for item in response:
+        order_date = datetime.strptime(item['order_created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
+        if (now - order_date) <= timedelta(days=5):
+            final.append(item)
+
+    # return jsonify(message=response)
+    return jsonify(message=final)
     print("done")
     
 

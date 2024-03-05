@@ -22,8 +22,6 @@ export default function query() {
             {/* <h1>{data.message}</h1> */}
             <h1>Query</h1>
             <pre>{JSON.stringify(data, null, 2)}</pre>
-
-
         </div>   
     );
 }
