@@ -4,6 +4,15 @@ import { createClient } from "@supabase/supabase-js";
 import {useQuery, useMutation } from '@tanstack/react-query'
 import { Calendar } from "~/components/ui/calendar";
 import { Textarea } from "~/components/ui/textarea";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "~/components/ui/card"
+  
 
 interface Trade {
     order_created_at: string;
@@ -24,8 +33,7 @@ interface Trade {
 
 export default function Journal() {
     const [date, setDate] = React.useState<Date | undefined>(new Date())
-
-  const { data, isPending, error } = useQuery({
+    const { data, isPending, error } = useQuery({
         queryKey: ['test'],
         queryFn: () => fetch("http://127.0.0.1:5000/api/showStocks").then((res) => 
         res.json(),
@@ -73,7 +81,7 @@ export default function Journal() {
         
 
     return (
-        <div>
+        <div className="flex flex-col gap-8 items-left p-10">
             <h1 className="text-3xl font-bold mb-4">Stats</h1>
             <div className="mb-4 bg-white shadow rounded p-4">
                 <h2 className="font-bold text-xl">Total Profit/Loss</h2>
@@ -84,12 +92,18 @@ export default function Journal() {
             </div>
 
             <h1 className="text-3xl font-bold mb-4">Recent Trades</h1>
-            <div className="flex flex-wrap">
+            <div className="flex flex-wrap gap-6">
                 {Object.entries(groupedTrades).map(([date, info]: [string, any], index) => (
-                    <div key={index} className="w-full md:w-1/2 lg:w-1/3 p-2">
+                    <Card className=" border hover:border-blue-500" key={index}>
+                        <CardHeader>
+                            <CardTitle>{date}</CardTitle>                     
+                        </CardHeader>
                         <div className="bg-white shadow rounded p-4">
-                            <h2 className="font-bold text-xl mb-2">{date}</h2>
-                            <p className="mb-4">Profit/Loss: ${((info.totalSell - info.totalBuy) * 100).toFixed(2)}</p>
+                            <p className="mb-4">{
+                                ((info.totalSell - info.totalBuy) * 100) >= 0 ?
+                                `Profit: $${((info.totalSell - info.totalBuy) * 100).toFixed(2)}` :
+                                `Loss: $${((info.totalSell - info.totalBuy) * 100).toFixed(2)}`}
+                            </p>
                             {/* {info.trades.map((trade: any, tradeIndex: any) => (
                                 <div key={tradeIndex} className="mb-3">
                                     <p>Symbol: {trade.symbol}</p>
@@ -98,13 +112,14 @@ export default function Journal() {
                                     <p>Quantity: {trade.processed_quantity}</p>
                                     <p>Side: {trade.side}</p>
                                 </div>
-                            ))} */}
+                            ))} */}    
                         </div>
-                    </div>
+                    </Card>
                 ))}
             </div>
             <div className="flex flex-row">
                 <div>
+                                
                     <h1 className="text-3xl font-bold mb-4">Calender</h1>
                     {/* Display Calendar here */}
                     <Calendar
@@ -128,3 +143,5 @@ export default function Journal() {
         </div>
     );
 }
+
+
