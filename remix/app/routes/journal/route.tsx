@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLoaderData } from "@remix-run/react";
 import { createClient } from "@supabase/supabase-js";
-import { asc } from "drizzle-orm";
 import {useQuery, useMutation } from '@tanstack/react-query'
 import { Calendar } from "~/components/ui/calendar";
+import { Textarea } from "~/components/ui/textarea";
 
 interface Trade {
     order_created_at: string;
@@ -22,7 +22,7 @@ interface Trade {
     [key: string]: TradeGroup;
   }
 
-export default function query() {
+export default function Journal() {
     const [date, setDate] = React.useState<Date | undefined>(new Date())
 
   const { data, isPending, error } = useQuery({
@@ -119,6 +119,9 @@ export default function query() {
                     <div className="mt-4 md:mt-0 md:ml-4 bg-white shadow rounded p-4">
                         <h2 className="font-bold text-xl mb-2">Profit/Loss for {selectedDateStr}</h2>
                         <p>Profit/Loss: ${pnl}</p>
+                        <div className="pt-4">
+                            <Textarea placeholder="Type your message here." />
+                        </div>
                     </div>
                 )}
             </div>         

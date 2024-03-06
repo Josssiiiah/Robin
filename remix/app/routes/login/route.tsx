@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import {
     useQuery, useMutation
   } from '@tanstack/react-query'
+import { Button } from "~/components/ui/button";
 
 
 
@@ -21,9 +22,16 @@ export default function Login() {
     }
 
     return (
-        <div>
-            <h1>Login</h1>
-            <form onSubmit={onSubmit}>
+        <div className="flex h-full w-full flex-col items-center">
+             <div className="flex flex-row w-full pt-2 pl-4 max-w-[1440px] items-center justify-between">
+                <Button>
+                <Link to="/" className="cursor-pointer no-underline">
+                    back
+                </Link>
+                </Button>
+      </div>
+            <h1 className="text-5xl pt-8">Login</h1>
+            <form className="pt-8" onSubmit={onSubmit}>
                 <input type="text" name="username" placeholder="Username"  />
                 <input type="password" name="password" placeholder="Password"  />
                 <button type="submit">Login</button>
@@ -33,9 +41,6 @@ export default function Login() {
                 <input type="text" name="mfaToken" placeholder="MFA Token" required />
                 <button type="submit">Submit MFA Token</button>
             </form> */}
-
-            <h1>Show stocks</h1>
-
         </div>   
     );
 }
