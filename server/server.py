@@ -37,15 +37,22 @@ def home():
 
 
 @app.route("/api/login", methods=["POST"])
+
 def login():
-    username = request.json.get("username")
-    password = request.json.get("password")
+    # username = request.json.get("username")
+    # password = request.json.get("password")
+    username = "josiahgriggs8@gmail.com"
+    password = "Coder1633!"
 
     # Logic to handle login and possibly MFA here
     data = r.login(username, password)
+
+    # if data = "failed due to mfa":
+    #     return jsonify(message="MFA required")
+
     print(data)
     # return(r.get_day_trades())
-    # return jsonify(orders=r.get_all_option_orders()) 
+    # return jsonify(orders=r.get_all_optio n_orders()) 
 
     return jsonify(data)
 
@@ -66,80 +73,6 @@ def showStocks():
         url = "https://api.robinhood.com/options/orders/"
         data = r.request_get(url, 'results')
         return(r.filter_data(data, info))
-
-
-    def fix_file_extension(file_name):
-        """ Takes a file extension and makes it end with .csv
-
-        :param file_name: Name of the file.
-        :type file_name: str
-        :returns: Adds or replaces the file suffix with .csv and returns it as a string.
-
-        """
-        path = Path(file_name)
-        path = path.with_suffix('.csv')
-        return path.resolve()
-
-    def create_absolute_csv(dir_path, file_name, order_type):
-        """ Creates a filepath given a directory and file name.
-
-        :param dir_path: Absolute or relative path to the directory the file will be written.
-        :type dir_path: str
-        :param file_name: An optional argument for the name of the file. If not defined, filename will be stock_orders_{current date}
-        :type file_name: str
-        :param file_name: Will be 'stock', 'option', or 'crypto'
-        :type file_name: str
-        :returns: An absolute file path as a string.
-
-        """
-        path = Path(dir_path)
-        directory = path.resolve()
-        if not file_name:
-            file_name = "{}_orders_{}.csv".format(order_type, date.today().strftime('%b-%d-%Y'))
-        else:
-            file_name = fix_file_extension(file_name)
-        return(Path.joinpath(directory, file_name))
-
-    def export(dir_path, file_name=None):
-        file_path = create_absolute_csv(dir_path, file_name, 'option')
-        all_orders = get_option_orders()
-        with open(file_path, 'w', newline='') as f:
-            csv_writer = writer(f)
-            csv_writer.writerow([
-                'chain_symbol',
-                'expiration_date',
-                'strike_price',
-                'option_type',
-                'side',
-                'order_created_at',
-                'direction',
-                'order_quantity',
-                'order_type',
-                'opening_strategy',
-                'closing_strategy',
-                'price',
-                'processed_quantity'
-            ])
-            for order in all_orders:
-                if order['state'] == 'filled':
-                    for leg in order['legs']:
-                        instrument_data = r.request_get(leg['option'])
-                        csv_writer.writerow([
-                            order['chain_symbol'],
-                            instrument_data['expiration_date'],
-                            instrument_data['strike_price'],
-                            instrument_data['type'],
-                            leg['side'],
-                            order['created_at'],
-                            order['direction'],
-                            order['quantity'],
-                            order['type'],
-                            order['opening_strategy'],
-                            order['closing_strategy'],
-                            order['price'],
-                            order['processed_quantity']
-                        ])
-            f.close()
 
     def get_orders():
         all_orders = get_option_orders()
@@ -169,7 +102,7 @@ def showStocks():
 
     for item in response:
         order_date = datetime.strptime(item['order_created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
-        if (now - order_date) <= timedelta(days=5):
+        if (now - order_date) <= timedelta(days=50):
             final.append(item)
 
     # return jsonify(message=response)
