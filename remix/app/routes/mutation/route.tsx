@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLoaderData } from "@remix-run/react";
 import { createClient } from "@supabase/supabase-js";
-import { asc } from "drizzle-orm";
 import {
     useQuery, useMutation
   } from '@tanstack/react-query'
