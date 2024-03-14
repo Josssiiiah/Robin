@@ -14,17 +14,6 @@ import {
 import { createSupabaseServerClient } from "~/supabase.server";
 
 
-  export const loader = async ({ request }: LoaderFunctionArgs) => {
-    const { supabaseClient } = createSupabaseServerClient(request)
-    const {
-      data: { user },
-    } = await supabaseClient.auth.getUser()
-    if (!user) {
-      return redirect('/sign-in')
-    }
-    return new Response(null)
-  }
-  
 export default function Journal() {
     const [date, setDate] = React.useState<Date | undefined>(new Date())
     const { data, isPending, error } = useQuery({

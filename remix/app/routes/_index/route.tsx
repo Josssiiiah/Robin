@@ -1,16 +1,18 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Link, json, useFetcher, useLoaderData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
-import { createServerClient, parse, serialize } from '@supabase/ssr'
+ 
 
 
 export default function Index() {
+
+
   return (
     <div className="flex h-full w-full flex-col items-center">
       <div className="flex flex-row w-full pt-2 pl-4 max-w-[1440px] items-center justify-between">
         <div className="flex-grow"></div> 
         <Button>
-          <Link to="/sign-in" className="cursor-pointer no-underline">
+          <Link to="/login" className="cursor-pointer no-underline">
             Login
           </Link>
         </Button>
