@@ -1,7 +1,7 @@
 // JOURNAL ROUTE
 import React, { useEffect, useState } from "react";
 import { useLoaderData } from "@remix-run/react";
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { createClient } from "@supabase/supabase-js";
 import {useQuery, useMutation } from '@tanstack/react-query'
 import { Calendar } from "~/components/ui/calendar";
@@ -11,15 +11,19 @@ import {
     CardHeader,
     CardTitle,
   } from "~/components/ui/card"
+import { createSupabaseServerClient } from "~/supabase.server";
 
-// export async function loader() {
-//     const data = await fetch("http://127.0.0.1:5000/api/showStocks")
-//     .then((res) => res.json())
 
-//     return json({
-//         message: data,
-//     });
-// }
+  export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const { supabaseClient } = createSupabaseServerClient(request)
+    const {
+      data: { user },
+    } = await supabaseClient.auth.getUser()
+    if (!user) {
+      return redirect('/sign-in')
+    }
+    return new Response(null)
+  }
   
 export default function Journal() {
     const [date, setDate] = React.useState<Date | undefined>(new Date())
