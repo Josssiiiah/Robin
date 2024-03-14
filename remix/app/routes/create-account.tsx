@@ -30,27 +30,26 @@ export default function Index() {
   const supabase = createBrowserClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
   const inputForm = React.useRef<HTMLFormElement>();
 
-const doCreateAccount = async () => {
-  const form = inputForm.current;
-  if (!form) return;
-  const formData = new FormData(form);
+  const doCreateAccount = async () => {
+    const form = inputForm.current;
+    if (!form) return;
+    const formData = new FormData(form);
 
-  const { email, password } = Object.fromEntries(formData.entries());
-  const { data, error } = await supabase.auth.signUp({
-    email: email as string,
-    password: password as string,
-  });
+    const { email, password } = Object.fromEntries(formData.entries());
+    const { data, error } = await supabase.auth.signUp({
+      email: email as string,
+      password: password as string,
+    });
 
-  if (error) {
-    console.log(error);
-    return;
-  }
+    if (error) {
+      console.log(error);
+      return;
+    }
 
-  if (data.session) {
-    redirect("/dashboard");
-  }
-}
-
+    if (data.session) {
+      redirect("/dashboard");
+    }
+  };
 
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>

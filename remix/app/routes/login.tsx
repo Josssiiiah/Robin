@@ -1,14 +1,7 @@
-import { redirect, type MetaFunction } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
+import { redirect } from "@remix-run/node"; // or cloudflare/deno
+import { Form, Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { createBrowserClient } from "@supabase/ssr";
 import React from "react";
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
 
 // add the loader
 export function loader() {
@@ -20,17 +13,17 @@ export function loader() {
   };
 }
 
-export function action() {
-  console.log("action function");
-  return redirect("/dashboard");
-}
 
 export default function Index() {
   const { env } = useLoaderData<typeof loader>();
   const inputForm = React.useRef<HTMLFormElement>();
+  const navigate = useNavigate();
 
   const doLogin = async () => {
-    const supabase = createBrowserClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+    const supabase = createBrowserClient(
+      env.SUPABASE_URL,
+      env.SUPABASE_ANON_KEY,
+    );
     const formData = new FormData(inputForm.current);
     const dataFields = Object.fromEntries(formData.entries());
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -45,21 +38,31 @@ export default function Index() {
 
     if (data.session) {
       console.log(data.session);
-      redirect("/journal");
+      navigate("/journal");
     }
   };
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Remix - LOGIN PAGE</h1>
-      <form method="post" ref={inputForm as React.RefObject<HTMLFormElement>}>
+    <div className="flex h-full w-full flex-col items-center">
+      <h1 className="pt-[200px] text-3xl">
+        <strong>Welcome to Remix - LOGIN PAGE</strong>
+      </h1>
+
+      <Form method="post">
         <input type="email" name="email" placeholder="username" />
         <input type="password" name="password" placeholder="password" />
         <button type="button" onClick={() => doLogin()}>
           LOGIN
         </button>
-      </form>
+      </Form>
       <Link to="/create-account">CREATE ACCOUNT</Link>
     </div>
   );
 }
+
+
+export function action() {
+    console.log("action function");
+    return redirect("/journal");
+  }
+  
