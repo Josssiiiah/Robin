@@ -1,7 +1,11 @@
-import { redirect } from "@remix-run/node"; // or cloudflare/deno
+import { ActionFunctionArgs, redirect } from "@remix-run/node"; // or cloudflare/deno
 import { Form, Link, useLoaderData, useNavigate } from "@remix-run/react";
-import { createBrowserClient } from "@supabase/ssr";
-import React from "react";
+import {
+  createBrowserClient,
+  createServerClient,
+  parse,
+  serialize,
+} from "@supabase/ssr";
 
 // add the loader
 export function loader() {
@@ -13,34 +17,7 @@ export function loader() {
   };
 }
 
-
 export default function Index() {
-  const { env } = useLoaderData<typeof loader>();
-  const inputForm = React.useRef<HTMLFormElement>();
-  const navigate = useNavigate();
-
-  const doLogin = async () => {
-    const supabase = createBrowserClient(
-      env.SUPABASE_URL,
-      env.SUPABASE_ANON_KEY,
-    );
-    const formData = new FormData(inputForm.current);
-    const dataFields = Object.fromEntries(formData.entries());
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: dataFields.email as string,
-      password: dataFields.password as string,
-    });
-
-    if (error) {
-      console.log(error);
-      return;
-    }
-
-    if (data.session) {
-      console.log(data.session);
-      navigate("/journal");
-    }
-  };
 
   return (
     <div className="flex h-full w-full flex-col items-center">
@@ -51,7 +28,7 @@ export default function Index() {
       <Form method="post">
         <input type="email" name="email" placeholder="username" />
         <input type="password" name="password" placeholder="password" />
-        <button type="button" onClick={() => doLogin()}>
+        <button type="submit">
           LOGIN
         </button>
       </Form>
@@ -60,9 +37,35 @@ export default function Index() {
   );
 }
 
+export async function action({ request }: ActionFunctionArgs) {
+  const cookies = parse(request.headers.get("Cookie") ?? "");
+  const headers = new Headers();
 
-export function action() {
-    console.log("action function");
-    return redirect("/journal");
-  }
-  
+  const supabase = createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(key) {
+          return cookies[key];
+        },
+        set(key, value, options) {
+          headers.append("Set-Cookie", serialize(key, value, options));
+        },
+        remove(key, options) {
+          headers.append("Set-Cookie", serialize(key, "", options));
+        },
+      },
+    },
+  );
+
+  const formData = await request.formData();
+  const dataFields = Object.fromEntries(formData.entries());
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: dataFields.email as string,
+    password: dataFields.password as string,
+  });
+
+  console.log("action function");
+  return redirect("/login");
+}
