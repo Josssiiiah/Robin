@@ -18,19 +18,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // protected route
   const userid = await requireAuth(request);
   console.log(userid);
-  return null;
+  return { userid}
 }
 
 // -----------------------------------------------------------------------------
 // Journal FUNCTION
 // -----------------------------------------------------------------------------
 export default function Journal() {
+  const userid = useLoaderData<typeof loader>()
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   // get trading data from Robinhood
   const { data, isPending, error } = useQuery({
     queryKey: ["test"],
     queryFn: () =>
-      fetch("http://127.0.0.1:5000/api/showStocks").then((res) => res.json()),
+      fetch("http://127.0.0.1:5000/api/showStocks", {
+        method: "POST",
+        body: JSON.stringify({ userid: userid}),
+      }).then((res) => res.json()),
   });
    if (error) return "Error: ";
    console.log("data", data);
