@@ -1,9 +1,3 @@
-import { cssBundleHref } from "@remix-run/css-bundle";
-import { createClient } from "@supabase/supabase-js";
-import { type LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { createBrowserClient } from "@supabase/ssr";
-
 import type { LinksFunction } from "@remix-run/node";
 import {
   Links,

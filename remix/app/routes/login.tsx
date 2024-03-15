@@ -1,29 +1,71 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/node"; // or cloudflare/deno
 import { Form, Link } from "@remix-run/react";
-import { createSupabaseServerClient } from "./supabase";
+import { createSupabaseServerClient } from "./supabase.server";
 import { commitSession, getSession } from "~/sessions.server";
 
 // -----------------------------------------------------------------------------
 // Login FUNCTION
 // -----------------------------------------------------------------------------
 export default function Login() {
-
   return (
     <div className="flex h-full w-full flex-col items-center">
-      <h1 className="pt-[200px] text-3xl">
-        <strong>Welcome to Remix - LOGIN PAGE</strong>
-      </h1>
-      {/* send create account inputs to action  */}
-      <Form method="post">
-        <input type="email" name="email" placeholder="username" />
-        <input type="password" name="password" placeholder="password" />
-        <button type="submit">LOGIN</button>
-      </Form>
-      <Link to="/create-account">CREATE ACCOUNT</Link>
+      <div className="flex flex-col w-full max-w-[1440px] items-center justify-between pl-4 pt-2">
+        <h1 className="pt-[150px] pb-4 text-5xl">
+          <strong> Login </strong>
+        </h1>
+        <Form method="post" className="bg-white p-8 rounded-lg shadow-md">
+          <div className="mb-4">
+            <label
+              htmlFor="email"
+              className="block text-gray-700 font-bold mb-2"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <label
+              htmlFor="password"
+              className="block text-gray-700 font-bold mb-2"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"
+          >
+            LOGIN
+          </button>
+        </Form>
+        <p className="mt-4">
+          Don't have an account?{" "}
+          <Link
+            to="/create-account"
+            className="text-blue-600 hover:text-blue-800"
+          >
+            CREATE ACCOUNT
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
-
 // -----------------------------------------------------------------------------
 // ACTION FUNCTION
 // -----------------------------------------------------------------------------
@@ -31,7 +73,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const supabase = await createSupabaseServerClient({ request });
   const session = await getSession(request.headers.get("Cookie"));
 
-  // handle form data 
+  // handle form data
   const formData = await request.formData();
   const { email, password } = Object.fromEntries(formData.entries());
 
@@ -41,7 +83,7 @@ export async function action({ request }: ActionFunctionArgs) {
     password: password as string,
   });
 
-  // if error when signing in 
+  // if error when signing in
   if (error) {
     console.log("error", error);
     return error.message;
@@ -57,10 +99,8 @@ export async function action({ request }: ActionFunctionArgs) {
         "Set-Cookie": await commitSession(session),
       },
     });
-  }
-  
-  else {
+  } else {
     console.log("something went wrong");
-    return null;  
+    return null;
   }
 }

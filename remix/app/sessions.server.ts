@@ -18,6 +18,7 @@ export const { getSession, commitSession, destroySession } =
     },
   });
 
+// method for protecting routes
 export async function requireAuth(request: Request) {
   const session = await getSession(request.headers.get("Cookie"));
 

@@ -8,16 +8,16 @@ import { Calendar } from "~/components/ui/calendar";
 import { Textarea } from "~/components/ui/textarea";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
 import { createServerClient, parse, serialize } from "@supabase/ssr";
-import { createSupabaseServerClient } from "../supabase";
+import { createSupabaseServerClient } from "../supabase.server";
 import { requireAuth } from "~/sessions.server";
 
 // -----------------------------------------------------------------------------
 // LOADER FUNCTION
 // -----------------------------------------------------------------------------
 export async function loader({ request }: LoaderFunctionArgs) {
-  // protected route 
+  // protected route
   const userid = await requireAuth(request);
-  console.log(userid)
+  console.log(userid);
   return null;
 }
 
