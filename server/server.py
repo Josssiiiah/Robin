@@ -142,7 +142,6 @@ def showStocks():
 @app.route("/api/getTradingInfo", methods=["GET"])
 def get_trading_info():
     user_id = request.args.get("userId")
-
     url: str = os.environ.get("SUPABASE_URL")
     key: str = os.environ.get("SUPABASE_KEY")
     supabase: Client = create_client(url, key)
