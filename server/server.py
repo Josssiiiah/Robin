@@ -102,12 +102,40 @@ def showStocks():
 
     for item in response:
         order_date = datetime.strptime(item['order_created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
-        if (now - order_date) <= timedelta(days=50):
+        if (now - order_date) <= timedelta(days=12):
             final.append(item)
 
-    # return jsonify(message=response)
-    return jsonify(message=final)
-    print("done")
+
+    # perform calculations on the server-side
+    grouped_trades = {}
+    for item in final:
+        date = item['order_created_at'].split("T")[0]  # Extract date part
+        if date not in grouped_trades:
+            grouped_trades[date] = {'trades': [], 'totalBuy': 0, 'totalSell': 0}
+        amount = float(item['price']) * float(item['processed_quantity'])
+        grouped_trades[date]['trades'].append(item)
+        if item['side'] == 'buy':
+            grouped_trades[date]['totalBuy'] += amount
+        else:
+            grouped_trades[date]['totalSell'] += amount
+
+    total_pnl = sum(group['totalSell'] - group['totalBuy'] for group in grouped_trades.values()) * 100
+    positive_pnl_days = sum(1 for group in grouped_trades.values() if group['totalSell'] - group['totalBuy'] > 0)
+    average_win_loss = total_pnl / len(grouped_trades)
+    trade_win_percentage = round((positive_pnl_days / len(grouped_trades)) * 100)
+
+    stats = {
+        'totalPnL': round(total_pnl),
+        'positivePnLDays': positive_pnl_days,
+        'averageWinLoss': round(average_win_loss),
+        'tradeWinPercentage': trade_win_percentage,
+        'groupedTrades': grouped_trades
+    }
+
+    return jsonify(stats)
+
+    # return jsonify(message=final)
+    # print("done")
     
 
 
