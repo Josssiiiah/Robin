@@ -1,80 +1,54 @@
-import { ActionFunctionArgs, redirect, type MetaFunction } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
-import { createBrowserClient, createServerClient, parse, serialize } from "@supabase/ssr";
-import React from "react";
+import {
+  redirect,
+} from "@remix-run/node";
+import { Form, Link} from "@remix-run/react";
+import { createSupabaseServerClient } from "~/routes/supabase";
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
+// -----------------------------------------------------------------------------
+// CreateAccount FUNCTION
+// -----------------------------------------------------------------------------
+export default function CreateAccount() {
 
-// add the loader
-export function loader() {
-  return {
-    env: {
-      SUPABASE_URL: process.env.SUPABASE_URL!,
-      SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY!,
-    },
-  };
-}
-
-export default function Index() {
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
       <h1>Welcome to Remix - CREATE ACCOUNT PAGE</h1>
+      {/* send create account inputs to action  */}
       <Form method="post">
         <input type="email" name="email" placeholder="username" />
         <input type="password" name="password" placeholder="password" />
-        <button type="submit">
-          CREATE ACCOUNT
-        </button>
+        <button type="submit">CREATE ACCOUNT</button>
       </Form>
       <Link to="/login">CANCEL</Link>
     </div>
   );
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  const cookies = parse(request.headers.get("Cookie") ?? "");
-  const headers = new Headers();
-
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(key) {
-          return cookies[key];
-        },
-        set(key, value, options) {
-          headers.append("Set-Cookie", serialize(key, value, options));
-        },
-        remove(key, options) {
-          headers.append("Set-Cookie", serialize(key, "", options));
-        },
-      },
-    },
-  );
-
+// -----------------------------------------------------------------------------
+// ACTION FUNCTION
+// -----------------------------------------------------------------------------
+export async function action({ request }: any) {
+  const supabase = await createSupabaseServerClient({ request });
+  
+  // handle form data 
   const formData = await request.formData();
   const { email, password } = Object.fromEntries(formData.entries());
+
+  // call supabase sign up function, adds user to database
   const { data, error } = await supabase.auth.signUp({
     email: email as string,
     password: password as string,
   });
 
+  // if error when signing up
   if (error) {
     console.log(error);
-    return null;
+    return { error: error.message };
   }
-
-  if (data.session) {
-    // Redirect to a protected route or the main page
-    return redirect("/login", );
+  
+  // if user created successfully
+  else {
+    console.log("User created successfully", data);
+    return redirect("/login");
   }
-
-  console.log("data", data.session);
-  return null
+  // return null;
 }

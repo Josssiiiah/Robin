@@ -1,81 +1,66 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/node"; // or cloudflare/deno
-import { Form, Link, useLoaderData, useNavigate } from "@remix-run/react";
-import {
-  createServerClient,
-  parse,
-  serialize,
-} from "@supabase/ssr";
+import { Form, Link } from "@remix-run/react";
+import { createSupabaseServerClient } from "./supabase";
+import { commitSession, getSession } from "~/sessions.server";
 
-
-export default function Index() {
+// -----------------------------------------------------------------------------
+// Login FUNCTION
+// -----------------------------------------------------------------------------
+export default function Login() {
 
   return (
     <div className="flex h-full w-full flex-col items-center">
       <h1 className="pt-[200px] text-3xl">
         <strong>Welcome to Remix - LOGIN PAGE</strong>
       </h1>
-
+      {/* send create account inputs to action  */}
       <Form method="post">
         <input type="email" name="email" placeholder="username" />
         <input type="password" name="password" placeholder="password" />
-        <button type="submit">
-          LOGIN
-        </button>
+        <button type="submit">LOGIN</button>
       </Form>
       <Link to="/create-account">CREATE ACCOUNT</Link>
     </div>
   );
 }
 
+// -----------------------------------------------------------------------------
+// ACTION FUNCTION
+// -----------------------------------------------------------------------------
 export async function action({ request }: ActionFunctionArgs) {
-  const cookies = parse(request.headers.get("Cookie") ?? "");
-  const headers = new Headers();
+  const supabase = await createSupabaseServerClient({ request });
+  const session = await getSession(request.headers.get("Cookie"));
 
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(key) {
-          return cookies[key];
-        },
-        set(key, value, options) {
-          headers.append("Set-Cookie", serialize(key, value, options));
-        },
-        remove(key, options) {
-          headers.append("Set-Cookie", serialize(key, "", options));
-        },
-      },
-    },
-  );
-
+  // handle form data 
   const formData = await request.formData();
-  const {email, password} = Object.fromEntries(formData.entries());
-  console.log("email", email);
+  const { email, password } = Object.fromEntries(formData.entries());
 
+  // call supabase sign in function
   const { data, error } = await supabase.auth.signInWithPassword({
     email: email as string,
     password: password as string,
   });
 
+  // if error when signing in 
   if (error) {
-    console.log("error", error);  
-    return redirect("/login-error");
+    console.log("error", error);
+    return error.message;
   }
 
+  // if valid user, set session and redirect to journal
   if (data?.user) {
     console.log("user", data.user);
-    return redirect("/journal");
+    session.set("userId", data.user.id);
+
+    return redirect("/journal", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
   }
-
-  console.log("something went wrong");
-  return null;
-
-//   console.log("action function");
-//   const userResponse = await supabase.auth.getUser();
-
-//   if (!userResponse?.data?.user) {
-//     return redirect("/not-authorized");
-//   }
-//   return redirect("/logged-in");
+  
+  else {
+    console.log("something went wrong");
+    return null;  
+  }
 }

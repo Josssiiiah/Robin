@@ -7,47 +7,26 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Calendar } from "~/components/ui/calendar";
 import { Textarea } from "~/components/ui/textarea";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
-import { createSupabaseServerClient } from "~/supabase.server";
 import { createServerClient, parse, serialize } from "@supabase/ssr";
+import { createSupabaseServerClient } from "../supabase";
+import { requireAuth } from "~/sessions.server";
 
-//
+// -----------------------------------------------------------------------------
 // LOADER FUNCTION
 // -----------------------------------------------------------------------------
 export async function loader({ request }: LoaderFunctionArgs) {
-  const cookies = parse(request.headers.get("Cookie") ?? "");
-  const headers = new Headers();
-
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(key) {
-          return cookies[key];
-        },
-        set(key, value, options) {
-          headers.append("Set-Cookie", serialize(key, value, options));
-        },
-        remove(key, options) {
-          headers.append("Set-Cookie", serialize(key, "", options));
-        },
-      },
-    },
-  );
-
-  const userResponse = await supabase.auth.getUser();
-
-  if (!userResponse?.data?.user) {
-    return redirect("/login");
-  } else {
-    return null;
-  }
-
+  // protected route 
+  const userid = await requireAuth(request);
+  console.log(userid)
   return null;
 }
 
+// -----------------------------------------------------------------------------
+// Journal FUNCTION
+// -----------------------------------------------------------------------------
 export default function Journal() {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
+  // get trading data from Robinhood
   const { data, isPending, error } = useQuery({
     queryKey: ["test"],
     queryFn: () =>
@@ -92,12 +71,12 @@ export default function Journal() {
     (total: number, group: any) => {
       return Math.round(total + (group.totalSell - group.totalBuy) * 100);
     },
-    0,
+    0
   );
 
   // Calculate the number of days with positive P&L
   const positivePnLDays = Object.values(
-    groupedTrades as Record<string, { totalSell: number; totalBuy: number }>,
+    groupedTrades as Record<string, { totalSell: number; totalBuy: number }>
   ).reduce((count: number, group) => {
     if (group.totalSell - group.totalBuy > 0) {
       return count + 1;
@@ -110,7 +89,7 @@ export default function Journal() {
 
   // Calculate trade win percentage
   const tradeWinPercentage = Math.round(
-    (positivePnLDays / Object.keys(groupedTrades).length) * 100,
+    (positivePnLDays / Object.keys(groupedTrades).length) * 100
   );
 
   type Stats = {
@@ -153,8 +132,14 @@ export default function Journal() {
               <div className="rounded bg-white p-4 shadow">
                 <p className="mb-4">
                   {(info.totalSell - info.totalBuy) * 100 >= 0
-                    ? `Profit: $${((info.totalSell - info.totalBuy) * 100).toFixed(2)}`
-                    : `Loss: $${((info.totalSell - info.totalBuy) * 100).toFixed(2)}`}
+                    ? `Profit: $${(
+                        (info.totalSell - info.totalBuy) *
+                        100
+                      ).toFixed(2)}`
+                    : `Loss: $${(
+                        (info.totalSell - info.totalBuy) *
+                        100
+                      ).toFixed(2)}`}
                 </p>
                 {/* {info.trades.map((trade: any, tradeIndex: any) => (
                                 <div key={tradeIndex} className="mb-3">
@@ -167,7 +152,7 @@ export default function Journal() {
                             ))} */}
               </div>
             </Card>
-          ),
+          )
         )}
       </div>
       <div className="flex flex-row">

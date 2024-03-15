@@ -1,43 +1,46 @@
+import { Form, redirect, useActionData } from "@remix-run/react";
+import { Button } from "~/components/ui/button";
+import { createSupabaseServerClient } from "./supabase";
 import { ActionFunctionArgs } from "@remix-run/node";
-import { createServerClient, parse, serialize } from "@supabase/ssr";
+import { commitSession, destroySession, getSession } from "~/sessions.server";
 
 
+// -----------------------------------------------------------------------------
+// Login FUNCTION
+// -----------------------------------------------------------------------------
+export default function Logout() {
+  return (
+    <div className="flex h-full w-full flex-col items-center">
+      logout
+      {/* trigger action  */}
+      <Form method="post">
+        <Button type="submit">LOGOUT</Button>
+      </Form>
+    </div>
+  );
+}
+
+
+// -----------------------------------------------------------------------------
+// ACTION FUNCTION
+// -----------------------------------------------------------------------------
 export async function action({ request }: ActionFunctionArgs) {
-    console.log("logout action")
-    const cookies = parse(request.headers.get("Cookie") ?? "");
-    const headers = new Headers();
-  
-    const supabase = createServerClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(key) {
-            return cookies[key];
-          },
-          set(key, value, options) {
-            headers.append("Set-Cookie", serialize(key, value, options));
-          },
-          remove(key, options) {
-            headers.append("Set-Cookie", serialize(key, "", options));
-          },
-        },
-      },
-    );
+  const supabase = await createSupabaseServerClient({ request });
+  const session = await getSession(request.headers.get("Cookie"));
 
-    async function signOut() {
-        const { error } = await supabase.auth.signOut()
 
-        if (error) {
-          console.error('Error logging out:', error)
-          return error
-        }
-      }
-  
-    headers.append("Set-Cookie", serialize("session", "", { path: "/", expires: new Date(0) }));
-    headers.append("Set-Cookie", serialize("refresh_token", "", { path: "/", expires: new Date(0) }));
-    await signOut()
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+  else {
     console.log("sign out successful")
-    return null;
-
+    return redirect("/", {
+      headers: {
+        "Set-Cookie": await destroySession(session),
+      },
+    });
+  }
 }

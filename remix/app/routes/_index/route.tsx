@@ -1,57 +1,17 @@
 // MAIN ROUTE
 
-import type {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
-} from "@remix-run/node";
+// remix
 import {
-  Form,
   Link,
-  json,
-  redirect,
-  useFetcher,
-  useLoaderData,
 } from "@remix-run/react";
-import { createServerClient, parse, serialize } from "@supabase/ssr";
+
+//ui
 import { Button } from "~/components/ui/button";
 
-//
-// LOADER FUNCTION
+
 // -----------------------------------------------------------------------------
-export async function loader({ request }: LoaderFunctionArgs) {
-  const cookies = parse(request.headers.get("Cookie") ?? "");
-  const headers = new Headers();
-
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(key) {
-          return cookies[key];
-        },
-        set(key, value, options) {
-          headers.append("Set-Cookie", serialize(key, value, options));
-        },
-        remove(key, options) {
-          headers.append("Set-Cookie", serialize(key, "", options));
-        },
-      },
-    },
-  );
-
-  const userResponse = await supabase.auth.getUser();
-
-  // if (!userResponse?.data?.user) {
-  //   return redirect("/login");
-  // } else {
-  //   return null;
-  // }
-
-  return null;
-}
-
+// Index FUNCTION
+// -----------------------------------------------------------------------------
 export default function Index() {
   return (
     <div className="flex h-full w-full flex-col items-center">
@@ -62,17 +22,16 @@ export default function Index() {
             Login
           </Link>
         </Button>
-        <Form method="post">
-          <button type="submit">
+        <Button>
+          <Link to="/logout" className="cursor-pointer no-underline">
             Logout
-          </button>
-        </Form>
+          </Link>
+        </Button>
       </div>
       <h1 className="pt-[200px] text-5xl">
         <strong>Next-Gen Trading Journal</strong>
       </h1>
       <p className="flex items-center pt-6 text-center">
-        {" "}
         TradZellaK helps you discover your strengths and weaknesses to become a{" "}
         <br />
         profitable trader with the power of journaling and analytics.{" "}
@@ -91,41 +50,3 @@ export default function Index() {
   );
 }
 
-//
-// ACTION FUNCTION
-// -----------------------------------------------------------------------------
-export async function action({ request }: ActionFunctionArgs) {
-  const cookies = parse(request.headers.get("Cookie") ?? "");
-  const headers = new Headers();
-
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(key) {
-          return cookies[key];
-        },
-        set(key, value, options) {
-          headers.append("Set-Cookie", serialize(key, value, options));
-        },
-        remove(key, options) {
-          headers.append("Set-Cookie", serialize(key, "", options));
-        },
-      },
-    },
-  );
-
-  async function signOut() {
-      const { error } = await supabase.auth.signOut()
-
-      if (error) {
-        console.error('Error logging out:', error)
-        return error
-      }
-    }
-    
-  await signOut()
-  console.log("sign out successful")
-  return null;
-}
