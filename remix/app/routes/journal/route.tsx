@@ -8,6 +8,43 @@ import { Calendar } from "~/components/ui/calendar";
 import { Textarea } from "~/components/ui/textarea";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
 import { createSupabaseServerClient } from "~/supabase.server";
+import { createServerClient, parse, serialize } from "@supabase/ssr";
+
+//
+// LOADER FUNCTION
+// -----------------------------------------------------------------------------
+export async function loader({ request }: LoaderFunctionArgs) {
+  const cookies = parse(request.headers.get("Cookie") ?? "");
+  const headers = new Headers();
+
+  const supabase = createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(key) {
+          return cookies[key];
+        },
+        set(key, value, options) {
+          headers.append("Set-Cookie", serialize(key, value, options));
+        },
+        remove(key, options) {
+          headers.append("Set-Cookie", serialize(key, "", options));
+        },
+      },
+    },
+  );
+
+  const userResponse = await supabase.auth.getUser();
+
+  if (!userResponse?.data?.user) {
+    return redirect("/login");
+  } else {
+    return null;
+  }
+
+  return null;
+}
 
 export default function Journal() {
   const [date, setDate] = React.useState<Date | undefined>(new Date());

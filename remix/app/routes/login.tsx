@@ -1,21 +1,11 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/node"; // or cloudflare/deno
 import { Form, Link, useLoaderData, useNavigate } from "@remix-run/react";
 import {
-  createBrowserClient,
   createServerClient,
   parse,
   serialize,
 } from "@supabase/ssr";
 
-// add the loader
-export function loader() {
-  return {
-    env: {
-      SUPABASE_URL: process.env.SUPABASE_URL!,
-      SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY!,
-    },
-  };
-}
 
 export default function Index() {
 
@@ -60,12 +50,32 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   const formData = await request.formData();
-  const dataFields = Object.fromEntries(formData.entries());
+  const {email, password} = Object.fromEntries(formData.entries());
+  console.log("email", email);
+
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: dataFields.email as string,
-    password: dataFields.password as string,
+    email: email as string,
+    password: password as string,
   });
 
-  console.log("action function");
-  return redirect("/login");
+  if (error) {
+    console.log("error", error);  
+    return redirect("/login-error");
+  }
+
+  if (data?.user) {
+    console.log("user", data.user);
+    return redirect("/journal");
+  }
+
+  console.log("something went wrong");
+  return null;
+
+//   console.log("action function");
+//   const userResponse = await supabase.auth.getUser();
+
+//   if (!userResponse?.data?.user) {
+//     return redirect("/not-authorized");
+//   }
+//   return redirect("/logged-in");
 }

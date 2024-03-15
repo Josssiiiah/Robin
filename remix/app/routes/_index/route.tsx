@@ -6,6 +6,7 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import {
+  Form,
   Link,
   json,
   redirect,
@@ -61,6 +62,11 @@ export default function Index() {
             Login
           </Link>
         </Button>
+        <Form method="post">
+          <button type="submit">
+            Logout
+          </button>
+        </Form>
       </div>
       <h1 className="pt-[200px] text-5xl">
         <strong>Next-Gen Trading Journal</strong>
@@ -110,7 +116,16 @@ export async function action({ request }: ActionFunctionArgs) {
     },
   );
 
-  return new Response("...", {
-    headers,
-  });
+  async function signOut() {
+      const { error } = await supabase.auth.signOut()
+
+      if (error) {
+        console.error('Error logging out:', error)
+        return error
+      }
+    }
+    
+  await signOut()
+  console.log("sign out successful")
+  return null;
 }
