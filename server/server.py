@@ -37,7 +37,6 @@ def home():
 
 
 @app.route("/api/login", methods=["POST"])
-
 def login():
     # username = request.json.get("username")
     # password = request.json.get("password")
@@ -61,8 +60,10 @@ def logout():
     r.logout()
     return jsonify(message="Logged out successfully")
 
-@app.route("/api/showStocks", methods=["GET"])
+@app.route("/api/showStocks", methods=["POST"])
 def showStocks():
+    user_id = request.json["userId"]
+
     # handle login
     username = "josiahgriggs8@gmail.com"
     password = "Coder1633!"
@@ -162,3 +163,5 @@ def test():
     supabase.table("test").insert({"id":t}).execute()
     return jsonify(message="Mutate request received")
 
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=8000)
