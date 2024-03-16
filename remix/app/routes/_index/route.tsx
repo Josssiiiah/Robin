@@ -6,7 +6,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 
 //ui
 import { Button } from "~/components/ui/button";
-import { getSession, requireAuth } from "~/sessions.server";
+import { getSession } from "~/sessions.server";
 
 
 // -----------------------------------------------------------------------------

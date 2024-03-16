@@ -2,7 +2,7 @@ import { Form, Link, redirect, useActionData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { createSupabaseServerClient } from "./supabase.server";
 import { ActionFunctionArgs } from "@remix-run/node";
-import { commitSession, destroySession, getSession } from "~/sessions.server";
+import { destroySession, getSession } from "~/sessions.server";
 
 // -----------------------------------------------------------------------------
 // Login FUNCTION

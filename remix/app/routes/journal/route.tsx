@@ -1,15 +1,12 @@
 // JOURNAL ROUTE
-import React, { useEffect, useState } from "react";
 import { useLoaderData } from "@remix-run/react";
-import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
-import { createClient } from "@supabase/supabase-js";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useQuery } from "@tanstack/react-query";
 import { Calendar } from "~/components/ui/calendar";
 import { Textarea } from "~/components/ui/textarea";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
-import { createServerClient, parse, serialize } from "@supabase/ssr";
-import { createSupabaseServerClient } from "../supabase.server";
 import { requireAuth } from "~/sessions.server";
+import React from "react";
 
 // -----------------------------------------------------------------------------
 // LOADER FUNCTION
@@ -18,14 +15,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // protected route
   const userid = await requireAuth(request);
   console.log(userid);
-  return {userid};
+  return { userid}
 }
 
 // -----------------------------------------------------------------------------
 // Journal FUNCTION
 // -----------------------------------------------------------------------------
 export default function Journal() {
-  const {userid} = useLoaderData<typeof loader>();
+  const userid = useLoaderData<typeof loader>()
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   // get trading data from Robinhood
   const { data, isPending, error } = useQuery({
