@@ -8,7 +8,6 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { getSession } from "~/sessions.server";
 
-
 // -----------------------------------------------------------------------------
 // LOADER FUNCTION
 // -----------------------------------------------------------------------------
@@ -22,10 +21,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     isUser = true;
   }
 
-  return {isUser};
-
+  return { isUser };
 }
-
 
 // -----------------------------------------------------------------------------
 // Index FUNCTION
@@ -49,7 +46,7 @@ export default function Index() {
             </Link>
           </Button>
         )}
-        </div>
+      </div>
       <h1 className="pt-[200px] text-5xl">
         <strong>Next-Gen Trading Journal</strong>
       </h1>

@@ -2,32 +2,18 @@ from dotenv import load_dotenv
 import os
 import random
 import robin_stocks.robinhood as r
-from pathlib import Path
-from csv import writer
-from datetime import date, datetime, timedelta
-
+from datetime import datetime, timedelta
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from supabase import create_client
-
+from supabase import create_client, Client
 
 load_dotenv()
 
 
-url = os.environ.get("SUPABASE_URL")
-key = os.environ.get("SUPABASE_ANON_KEY")
-supabase = create_client(url, key)
-
-# data = supabase.table("test").select("*").execute()
-# print(data)
-
-
-# data = supabase.table("test").insert({"id":"50"}).execute()
-
-
-
 app = Flask(__name__)
 CORS(app)
+
+
 
 @app.route("/")
 def home():
@@ -55,6 +41,8 @@ def login():
 
     return jsonify(data)
 
+
+
 @app.route("/api/logout", methods=["POST"])
 def logout():
     r.logout()
@@ -62,8 +50,13 @@ def logout():
 
 @app.route("/api/showStocks", methods=["POST"])
 def showStocks():
-    user_id = request.json["userId"]
+ 
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_ANON_KEY")
+    supabase: Client = create_client(url, key)
 
+
+    user_id = request.args.get("userid")
     # handle login
     username = "josiahgriggs8@gmail.com"
     password = "Coder1633!"
@@ -126,6 +119,7 @@ def showStocks():
     trade_win_percentage = round((positive_pnl_days / len(grouped_trades)) * 100)
 
     stats = {
+        "userId": "85b968ba-1174-4b52-a789-dd979c2446d2",
         'totalPnL': round(total_pnl),
         'positivePnLDays': positive_pnl_days,
         'averageWinLoss': round(average_win_loss),
@@ -133,13 +127,56 @@ def showStocks():
         'groupedTrades': grouped_trades
     }
 
+    data = supabase.table("trading_info").insert(stats).execute()
+
     return jsonify(stats)
 
     # return jsonify(message=final)
     # print("done")
     
+@app.route("/api/getTradingInfo", methods=["GET"])
+def get_trading_info():
+    user_id = request.args.get("userId")
+    url: str = os.environ.get("SUPABASE_URL")
+    key: str = os.environ.get("SUPABASE_KEY")
+    supabase: Client = create_client(url, key)
 
+    result = supabase.table("trading_info").select("*").eq("user_id", user_id).execute()
 
+    if result.get("status_code") == 200:
+        trading_info = result.get("data")
+        return jsonify(trading_info)
+    else:
+        return jsonify({"error": "Failed to retrieve trading information"})
+
+@app.route("/api/storeTradingInfo", methods=["POST"])
+def store_trading_info():
+    user_id = request.json["userId"]
+    total_pnl = request.json["totalPnL"]
+    positive_pnl_days = request.json["positivePnLDays"]
+    average_win_loss = request.json["averageWinLoss"]
+    trade_win_percentage = request.json["tradeWinPercentage"]
+    grouped_trades = request.json["groupedTrades"]
+
+    url: str = os.environ.get("SUPABASE_URL")
+    key: str = os.environ.get("SUPABASE_KEY")
+    supabase: Client = create_client(url, key)
+
+    data = {
+        "user_id": user_id,
+        "total_pnl": total_pnl,
+        "positive_pnl_days": positive_pnl_days,
+        "average_win_loss": average_win_loss,
+        "trade_win_percentage": trade_win_percentage,
+        "grouped_trades": grouped_trades,
+    }
+
+    result = supabase.table("trading_info").insert(data).execute()
+
+    if result.get("status_code") == 201:
+        return jsonify({"message": "Trading information stored successfully"})
+    else:
+        return jsonify({"error": "Failed to store trading information"})
 
 @app.route("/api/mfa", methods=["POST"])
 def mfa():
@@ -154,14 +191,12 @@ def simple():
     # supabase.table("test").insert({"message":response}).execute()
     return response
 
-@app.route("/api/mutate", methods=["POST"])
-def test():
-    random1 = random.randint(1, 100) 
-    random2 = random.randint(1, 10) 
+# @app.route("/api/mutate", methods=["POST"])
+# def test():
+#     random1 = random.randint(1, 100) 
+#     random2 = random.randint(1, 10) 
 
-    t = random1 * random2
-    supabase.table("test").insert({"id":t}).execute()
-    return jsonify(message="Mutate request received")
+#     t = random1 * random2
+#     supabase.table("test").insert({"id":t}).execute()
+#     return jsonify(message="Mutate request received")
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8000)

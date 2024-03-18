@@ -1,19 +1,41 @@
-import { ActionFunctionArgs, redirect } from "@remix-run/node"; // or cloudflare/deno
-import { Form, Link } from "@remix-run/react";
+import { ActionFunctionArgs, redirect } from "@remix-run/node";  
+import { Form, Link, useSubmit, useActionData } from "@remix-run/react";
 import { createSupabaseServerClient } from "./supabase.server";
 import { commitSession, getSession } from "~/sessions.server";
+import { useToast } from "~/components/ui/use-toast";
+import { useEffect } from "react";
 
 // -----------------------------------------------------------------------------
 // Login FUNCTION
 // -----------------------------------------------------------------------------
 export default function Login() {
+  const { toast } = useToast();
+  const submit = useSubmit();
+  const actionData = useActionData<typeof action>();
+
+  useEffect(() => {
+    if (actionData?.error) {
+      toast({
+        title: "Login Failed",
+        description: actionData.error,
+        variant: "destructive",
+      });
+    }
+  }, [actionData, toast]);
+
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    submit(event.currentTarget, { method: "post" });
+  }
+
   return (
     <div className="flex h-full w-full flex-col items-center">
       <div className="flex flex-col w-full max-w-[1440px] items-center justify-between pl-4 pt-2">
         <h1 className="pt-[150px] pb-4 text-5xl">
           <strong> Login </strong>
         </h1>
-        <Form method="post" className="bg-white p-8 rounded-lg shadow-md">
+        <Form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md">
           <div className="mb-4">
             <label
               htmlFor="email"
@@ -86,7 +108,7 @@ export async function action({ request }: ActionFunctionArgs) {
   // if error when signing in
   if (error) {
     console.log("error", error);
-    return error.message;
+    return { error: error.message };
   }
 
   // if valid user, set session and redirect to journal

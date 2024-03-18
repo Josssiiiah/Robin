@@ -9,6 +9,8 @@ import {
 } from "@remix-run/react";
 import stylesheet from "~/tailwind.css";
 
+import { Toaster } from "./components/ui/toaster";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient();
@@ -33,6 +35,7 @@ export default function App() {
         </head>
         <body>
           <Outlet />
+          <Toaster />
           <ScrollRestoration />
           <Scripts />
           <LiveReload />
