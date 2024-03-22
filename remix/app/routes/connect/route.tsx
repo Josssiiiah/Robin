@@ -3,10 +3,8 @@ import { Link, useFetcher, useActionData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
 import axios from "axios";
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js";
 import { getSession } from "~/sessions.server";
-
-
 
 // -----------------------------------------------------------------------------
 // Connect FUNCTION
@@ -93,9 +91,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const RH_USERNAME = formData.get("email") as string;
   const RH_PASSWORD = formData.get("password") as string;
   const mfa = formData.get("mfa") as string;
-  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
-
-
+  const supabase = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!
+  );
 
   const options = {
     method: "POST",
@@ -122,29 +121,33 @@ export async function action({ request }: ActionFunctionArgs) {
   };
 
   try {
-    // success 
+    // send requests to Robinhood and for current userId
     const response = await axios(options);
     const session = await getSession(request.headers.get("Cookie"));
     const userId = session.get("userId");
 
-    // Insert auth token into Supabase
+    // insert auth token into Supabase
     const { data, error: supabaseError } = await supabase
-    .from('rh_auth')
-    .insert({ user_id: userId, auth_token: response.data.access_token });
-
+      .from("rh_auth")
+      .insert({ user_id: userId, auth_token: response.data.access_token });
+    
+    // error saving data to Supabase
     if (supabaseError) {
-    console.log("Supabase error", supabaseError);
-    return json({ success: false, error: supabaseError.message });
+      console.log("Supabase error", supabaseError);
+      return json({ success: false, error: supabaseError.message });
     }
-
     console.log("options", response.data.access_token);
     return json({ success: true });
-    } catch (error: any) {
+  } 
+  
+  catch (error: any) {
+    // error connecting to Robinhood
     console.log("error", error);
     if (error.response && error.response.data && error.response.data.detail) {
-    return json({ success: false, error: error.response.data.detail });
-    } else {
-    return json({ success: false, error: "Login failed" });
+      return json({ success: false, error: error.response.data.detail });
+    } 
+    else {
+      return json({ success: false, error: "Login failed" });
     }
-  } 
+  }
 }

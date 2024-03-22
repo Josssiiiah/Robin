@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, Link, useSubmit, useActionData } from "@remix-run/react";
-import { createSupabaseServerClient } from "./supabase.server";
+import { createSupabaseServerClient } from "../supabase.server";
 import { commitSession, getSession } from "~/sessions.server";
 import { useToast } from "~/components/ui/use-toast";
 import { useEffect } from "react";
@@ -80,7 +80,7 @@ export default function Login() {
         <p className="mt-4">
           Don't have an account?{" "}
           <Link
-            to="/create-account"
+            to="/create"
             className="text-blue-600 hover:text-blue-800"
           >
             CREATE ACCOUNT

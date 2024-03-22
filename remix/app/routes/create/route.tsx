@@ -89,5 +89,4 @@ export async function action({ request }: any) {
     console.log("User created successfully", data);
     return redirect("/login");
   }
-  // return null;
 }
