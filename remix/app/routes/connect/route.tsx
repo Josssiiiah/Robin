@@ -130,7 +130,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const { data, error: supabaseError } = await supabase
       .from("rh_auth")
       .insert({ user_id: userId, auth_token: response.data.access_token });
-    
+
     // error saving data to Supabase
     if (supabaseError) {
       console.log("Supabase error", supabaseError);
@@ -138,15 +138,12 @@ export async function action({ request }: ActionFunctionArgs) {
     }
     console.log("options", response.data.access_token);
     return json({ success: true });
-  } 
-  
-  catch (error: any) {
+  } catch (error: any) {
     // error connecting to Robinhood
     console.log("error", error);
     if (error.response && error.response.data && error.response.data.detail) {
       return json({ success: false, error: error.response.data.detail });
-    } 
-    else {
+    } else {
       return json({ success: false, error: "Login failed" });
     }
   }
