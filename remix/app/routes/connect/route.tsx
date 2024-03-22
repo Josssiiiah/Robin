@@ -1,114 +1,73 @@
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
-import { Form, Link, useSubmit, useFetcher, useActionData } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { ActionFunctionArgs, json } from "@remix-run/node";
+import { Link, useFetcher, useActionData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
+import axios from "axios";
+import { createClient } from "@supabase/supabase-js";
+import { getSession } from "~/sessions.server";
 
 // -----------------------------------------------------------------------------
 // Connect FUNCTION
 // -----------------------------------------------------------------------------
-
-interface ActionData {
-    success?: boolean;
-    mfaRequired?: boolean;
-    error?: string;
-  }
-
 export default function Connect() {
-    const { toast } = useToast();
-    const submit = useSubmit();
-    const fetcher = useFetcher();  
-    const actionData = useActionData<ActionData>();
-    const [showMFAInput, setShowMFAInput] = useState(false);
-  
-    useEffect(() => {
-        if (actionData?.mfaRequired) {
-          setShowMFAInput(true);
-        }
-        if (actionData?.error) {
-          toast({
-            title: "Error",
-            description: actionData.error,
-            variant: "destructive",
-          });
-        }
-      }, [actionData, toast]);
+  const { toast } = useToast();
+  const fetcher = useFetcher();
 
-    const handleRobinhoodClick = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const email = formData.get("email");
-        const password = formData.get("password");
-        submit(event.currentTarget, { method: "post" });
-
-        toast({
-            title: "You submitted",
-            description: (
-            <pre>
-                <code>{JSON.stringify({ email, password }, null, 2)}</code>
-            </pre>
-            ),
-        });
-};
-
-    return (
+  return (
     <div className="flex flex-col gap-8 p-10">
-        <div className="flex justify-start">
+      <div className="flex justify-start">
         <Button>
-            <Link to="/journal" className="cursor-pointer no-underline">
+          <Link to="/journal" className="cursor-pointer no-underline">
             Back
-            </Link>
+          </Link>
         </Button>
-        </div>
-        <div className="flex flex-col items-center">
+      </div>
+      <div className="flex flex-col items-center">
         <h1 className="text-3xl font-bold pb-8 pt-24">
-            Connect to your Broker
+          Connect to your Broker
         </h1>
-        <fetcher.Form onSubmit={handleRobinhoodClick} className="w-full max-w-md">
-            <div className="mb-4">
+        <fetcher.Form method="post" className="w-full max-w-md">
+          <div className="mb-4">
             <label
-                htmlFor="email"
-                className="block text-gray-700 font-bold mb-2"
+              htmlFor="email"
+              className="block text-gray-700 font-bold mb-2"
             >
-                Email
+              Email
             </label>
             <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="Enter your email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
-            </div>
-            <div className="mb-6">
-            <label
-                htmlFor="password"
-                className="block text-gray-700 font-bold mb-2"
-            >
-                Password
-            </label>
-            <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Enter your password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-            />
-            </div>
-            {/* Button to connect to robinhood brokerage and get cookie back */}
-            <Button type="submit">Robinhood</Button>
-        </fetcher.Form>
-        </div>
-        {showMFAInput && (
-        <Form method="post">
+          </div>
           <div className="mb-6">
-            <label htmlFor="mfa" className="block text-gray-700 font-bold mb-2">
+            <label
+              htmlFor="password"
+              className="block text-gray-700 font-bold mb-2"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <label
+              htmlFor="password"
+              className="block text-gray-700 font-bold mb-2"
+            >
               MFA
             </label>
             <input
-              type="text"
+              type="password"
               id="mfa"
               name="mfa"
               placeholder="Enter your MFA code"
@@ -116,62 +75,76 @@ export default function Connect() {
               required
             />
           </div>
-          <Button type="submit">Submit</Button>
-        </Form>
-      )}
+          {/* Button to connect to robinhood brokerage and get auth token back */}
+          <Button type="submit">Robinhood</Button>
+        </fetcher.Form>
+      </div>
     </div>
-    );
+  );
 }
 
 // -----------------------------------------------------------------------------
 // ACTION FUNCTION
 // -----------------------------------------------------------------------------
 export async function action({ request }: ActionFunctionArgs) {
-    const data = await request.formData();
-    const email = data.get("email");
-    const password = data.get("password");
-    const mfa = data.get("mfa");
+  const formData = await request.formData();
+  const RH_USERNAME = formData.get("email") as string;
+  const RH_PASSWORD = formData.get("password") as string;
+  const mfa = formData.get("mfa") as string;
+  const supabase = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!
+  );
 
-    if (mfa) {
-      // Send the MFA code to the server
-    const response = await fetch("http://127.0.0.1:5000//api/mfa", {
+  const options = {
     method: "POST",
-    body: JSON.stringify({ mfa }),
+    url: "https://api.robinhood.com/oauth2/token/",
     headers: {
-        "Content-Type": "application/json",
-        },
-    });
+      Accept: "*/*",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "en-US,en;q=1",
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-Robinhood-API-Version": "1.315.0",
+      Connection: "keep-alive",
+      "User-Agent": "*",
+    },
+    data: {
+      client_id: "c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS",
+      grant_type: "password",
+      password: RH_PASSWORD,
+      scope: "internal",
+      username: RH_USERNAME,
+      challenge_type: "sms",
+      device_token: "fe3e28aa-4914-0cbb-d631-110568146b29",
+      mfa_code: mfa,
+    },
+  };
 
-    if (response.ok) {
-        // MFA code submitted successfully
-        return json({ success: true });
-    } else {
-        // Handle error case
-        return json({ success: false, error: "Failed to submit MFA code" });
-        }
-    }   
-    // Send the email and password to the server
-    const response = await fetch("http://127.0.0.1:5000//api/login", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-        headers: {
-        "Content-Type": "application/json",
-        },
-    });
-    console.log("Sent to robinhood, response: ", response)
-    
-    if (response.ok) {
-        const data = await response.json();
-        if (data.mfaRequired) {
-          // MFA is required, return mfaRequired flag to the frontend
-            return json({ mfaRequired: true });
-        } else {
-          // Login successful, redirect to the desired page
-            return redirect("/dashboard");
-        }
-    } else {
-        // Handle login error case
-        const errorData = await response.json();
-        return "error";
+  try {
+    // send requests to Robinhood and for current userId
+    const response = await axios(options);
+    const session = await getSession(request.headers.get("Cookie"));
+    const userId = session.get("userId");
+
+    // insert auth token into Supabase
+    const { data, error: supabaseError } = await supabase
+      .from("rh_auth")
+      .insert({ user_id: userId, auth_token: response.data.access_token });
+
+    // error saving data to Supabase
+    if (supabaseError) {
+      console.log("Supabase error", supabaseError);
+      return json({ success: false, error: supabaseError.message });
     }
+    console.log("options", response.data.access_token);
+    return json({ success: true });
+  } catch (error: any) {
+    // error connecting to Robinhood
+    console.log("error", error);
+    if (error.response && error.response.data && error.response.data.detail) {
+      return json({ success: false, error: error.response.data.detail });
+    } else {
+      return json({ success: false, error: "Login failed" });
+    }
+  }
 }
