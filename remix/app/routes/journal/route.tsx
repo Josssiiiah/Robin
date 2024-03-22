@@ -6,8 +6,9 @@ import { Calendar } from "~/components/ui/calendar";
 import { Textarea } from "~/components/ui/textarea";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
 import { requireAuth } from "~/sessions.server";
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "~/components/ui/button";
+import { useToast } from "~/components/ui/use-toast";
 
 
 // -----------------------------------------------------------------------------
@@ -24,6 +25,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 // -----------------------------------------------------------------------------
 export default function Journal() {
   const userid = useLoaderData<typeof loader>();
+  const {toast} = useToast();
 
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   // get trading data from Robinhood
@@ -35,7 +37,15 @@ export default function Journal() {
         body: JSON.stringify({ userid }),
       }).then((res) => res.json()),
   });
-  if (error) return "Error: ";
+  useEffect(() => {
+    if (!data) {
+      toast({
+        title: "No Data",
+        description: "Log into your broker to see data",
+        variant: "destructive",
+      });
+    }
+  }, [data, toast]);
   console.log("data", data);
 
   const {

@@ -1,6 +1,6 @@
 from supabase import create_client
 from dotenv import load_dotenv
-import robin_stocks.robinhood as r
+import robin_stocks as r
 from pathlib import Path
 from csv import writer
 from datetime import date
@@ -16,7 +16,7 @@ supabase = create_client(url, key)
 username = "josiahgriggs8@gmail.com"
 password =  "Coder1633!"
 # Logic to handle login and possibly MFA here
-data = r.login(username, password)
+data = r.robinhood.authentication.login(username, password)
 
 # data = supabase.table("test").insert({"id":"500"}).execute()
 # print(jsonify(orders=r.get_all_option_orders()))

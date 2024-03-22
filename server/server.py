@@ -24,10 +24,10 @@ def home():
 
 @app.route("/api/login", methods=["POST"])
 def login():
-    # username = request.json.get("username")
-    # password = request.json.get("password")
-    username = "josiahgriggs8@gmail.com"
-    password = "Coder1633!"
+    username = request.json.get("username")
+    password = request.json.get("password")
+    # username = "josiahgriggs8@gmail.com"
+    # password = "Coder1633!"
 
     # Logic to handle login and possibly MFA here
     data = r.login(username, password)
@@ -48,9 +48,28 @@ def logout():
     r.logout()
     return jsonify(message="Logged out successfully")
 
+
+@app.route("/api/mfa", methods=["POST"])
+def mfa():
+    mfa_data = request.json
+    status = mfa_data.get('status')
+    
+    if status == 'mfa_required':
+        # Render the MFA input form to the user
+        return jsonify(message="MFA required")
+    
+    mfa_token = request.form.get('mfa_token')
+    if mfa_token:
+        # Send the MFA token back to the robin_stocks package
+        return jsonify(mfa_token=mfa_token)
+    
+    return jsonify(message="Invalid request"), 400
+
+
+
 @app.route("/api/showStocks", methods=["POST"])
 def showStocks():
- 
+
     url = os.environ.get("SUPABASE_URL")
     key = os.environ.get("SUPABASE_ANON_KEY")
     supabase: Client = create_client(url, key)
