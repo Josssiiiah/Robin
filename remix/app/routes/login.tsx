@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, redirect } from "@remix-run/node";  
+import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, Link, useSubmit, useActionData } from "@remix-run/react";
 import { createSupabaseServerClient } from "./supabase.server";
 import { commitSession, getSession } from "~/sessions.server";
@@ -23,11 +23,10 @@ export default function Login() {
     }
   }, [actionData, toast]);
 
-
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     submit(event.currentTarget, { method: "post" });
-  }
+  };
 
   return (
     <div className="flex h-full w-full flex-col items-center">
@@ -35,7 +34,10 @@ export default function Login() {
         <h1 className="pt-[150px] pb-4 text-5xl">
           <strong> Login </strong>
         </h1>
-        <Form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md">
+        <Form
+          onSubmit={handleSubmit}
+          className="bg-white p-8 rounded-lg shadow-md"
+        >
           <div className="mb-4">
             <label
               htmlFor="email"

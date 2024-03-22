@@ -10,7 +10,6 @@ import React, { useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
 
-
 // -----------------------------------------------------------------------------
 // LOADER FUNCTION
 // -----------------------------------------------------------------------------
@@ -25,7 +24,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 // -----------------------------------------------------------------------------
 export default function Journal() {
   const userid = useLoaderData<typeof loader>();
-  const {toast} = useToast();
+  const { toast } = useToast();
 
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   // get trading data from Robinhood

@@ -1,109 +1,88 @@
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
-import { Form, Link, useSubmit, useFetcher, useActionData } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { ActionFunctionArgs, json } from "@remix-run/node";
+import { Link, useFetcher, useActionData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
+import axios from "axios";
+import { createClient } from '@supabase/supabase-js'
+import { getSession } from "~/sessions.server";
+
 
 
 // -----------------------------------------------------------------------------
 // Connect FUNCTION
 // -----------------------------------------------------------------------------
-interface ActionData {
-    success?: boolean;
-    mfaRequired?: boolean;
-    error?: string;
-  }
-
 export default function Connect() {
-    const { toast } = useToast();
-    const submit = useSubmit();
-    const fetcher = useFetcher();  
-    const actionData = useActionData<ActionData>();
-    const [showMFAInput, setShowMFAInput] = useState(false);
-  
-    useEffect(() => {
-        if (actionData?.mfaRequired) {
-          setShowMFAInput(true);
-        }
-        if (actionData?.error) {
-          toast({
-            title: "Error",
-            description: actionData.error,
-            variant: "destructive",
-          });
-        }
-      }, [actionData, toast]);
+  const { toast } = useToast();
+  const fetcher = useFetcher();
 
-    return (
+  return (
     <div className="flex flex-col gap-8 p-10">
-        <div className="flex justify-start">
+      <div className="flex justify-start">
         <Button>
-            <Link to="/journal" className="cursor-pointer no-underline">
+          <Link to="/journal" className="cursor-pointer no-underline">
             Back
-            </Link>
+          </Link>
         </Button>
-        </div>
-        <div className="flex flex-col items-center">
+      </div>
+      <div className="flex flex-col items-center">
         <h1 className="text-3xl font-bold pb-8 pt-24">
-            Connect to your Broker
+          Connect to your Broker
         </h1>
         <fetcher.Form method="post" className="w-full max-w-md">
-            <div className="mb-4">
+          <div className="mb-4">
             <label
-                htmlFor="email"
-                className="block text-gray-700 font-bold mb-2"
+              htmlFor="email"
+              className="block text-gray-700 font-bold mb-2"
             >
-                Email
+              Email
             </label>
             <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="Enter your email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
-            </div>
-            <div className="mb-6">
+          </div>
+          <div className="mb-6">
             <label
-                htmlFor="password"
-                className="block text-gray-700 font-bold mb-2"
+              htmlFor="password"
+              className="block text-gray-700 font-bold mb-2"
             >
-                Password
+              Password
             </label>
             <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Enter your password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
-            </div>
-            <div className="mb-6">
+          </div>
+          <div className="mb-6">
             <label
-                htmlFor="password"
-                className="block text-gray-700 font-bold mb-2"
+              htmlFor="password"
+              className="block text-gray-700 font-bold mb-2"
             >
-                MFA
+              MFA
             </label>
             <input
-                type="password"
-                id="mfa"
-                name="mfa"
-                placeholder="Enter your MFA code"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+              type="password"
+              id="mfa"
+              name="mfa"
+              placeholder="Enter your MFA code"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
-            </div>
-            {/* Button to connect to robinhood brokerage and get auth token back */}
-            <Button type="submit">Robinhood</Button>
+          </div>
+          {/* Button to connect to robinhood brokerage and get auth token back */}
+          <Button type="submit">Robinhood</Button>
         </fetcher.Form>
-        </div>
+      </div>
     </div>
-    );
+  );
 }
 
 // -----------------------------------------------------------------------------
@@ -114,41 +93,58 @@ export async function action({ request }: ActionFunctionArgs) {
   const RH_USERNAME = formData.get("email") as string;
   const RH_PASSWORD = formData.get("password") as string;
   const mfa = formData.get("mfa") as string;
+  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+
+
 
   const options = {
-    method: 'POST',
-    url: 'https://api.robinhood.com/oauth2/token/',
+    method: "POST",
+    url: "https://api.robinhood.com/oauth2/token/",
     headers: {
-      'Accept': '*/*',
-      'Accept-Encoding': 'gzip, deflate, br',
-      'Accept-Language': 'en-US,en;q=1',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-Robinhood-API-Version': '1.315.0',
-      'Connection': 'keep-alive',
-      'User-Agent': '*',
+      Accept: "*/*",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "en-US,en;q=1",
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-Robinhood-API-Version": "1.315.0",
+      Connection: "keep-alive",
+      "User-Agent": "*",
     },
     data: {
-      client_id: 'c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS',
-      grant_type: 'password',
+      client_id: "c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS",
+      grant_type: "password",
       password: RH_PASSWORD,
-      scope: 'internal',
+      scope: "internal",
       username: RH_USERNAME,
-      challenge_type: 'sms',
-      device_token: 'fe3e28aa-4914-0cbb-d631-110568146b29',
-      mfa_code: mfa 
+      challenge_type: "sms",
+      device_token: "fe3e28aa-4914-0cbb-d631-110568146b29",
+      mfa_code: mfa,
     },
   };
 
   try {
+    // success 
     const response = await axios(options);
-    console.log('options', response.data);
-    return json({ success: true });
-  } catch (error: any) {
-    console.log('error', error);
-    if (error.response && error.response.data && error.response.data.detail) {
-      return json({ success: false, error: error.response.data.detail });
-    } else {
-      return json({ success: false, error: 'Login failed' });
+    const session = await getSession(request.headers.get("Cookie"));
+    const userId = session.get("userId");
+
+    // Insert auth token into Supabase
+    const { data, error: supabaseError } = await supabase
+    .from('rh_auth')
+    .insert({ user_id: userId, auth_token: response.data.access_token });
+
+    if (supabaseError) {
+    console.log("Supabase error", supabaseError);
+    return json({ success: false, error: supabaseError.message });
     }
-  }
+
+    console.log("options", response.data.access_token);
+    return json({ success: true });
+    } catch (error: any) {
+    console.log("error", error);
+    if (error.response && error.response.data && error.response.data.detail) {
+    return json({ success: false, error: error.response.data.detail });
+    } else {
+    return json({ success: false, error: "Login failed" });
+    }
+  } 
 }
