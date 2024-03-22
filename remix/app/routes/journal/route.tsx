@@ -144,6 +144,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
       (group: any) => group.totalSell - group.totalBuy < 0
     ).length;
 
+    let netProfit = 0;
+    let netLoss = 0;
+
+    for (const group of Object.values(groupedTrades) as any[]) {
+      for (const trade of group.trades) {
+        const amount =
+          parseFloat(trade.price) * parseFloat(trade.processed_quantity);
+        if (trade.side === "sell") {
+          netProfit += amount;
+        } else {
+          netLoss += amount;
+        }
+      }
+    }
+
+    const profitFactor = netLoss !== 0 ? netProfit / netLoss : 0;
+
     const stats = {
       userId: userid,
       totalPnL: Math.round(totalPnL),
@@ -154,6 +171,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       positiveTrades,
       breakEvenTrades,
       negativeTrades,
+      profitFactor,
     };
 
     console.log("Response 2:", stats);
@@ -171,6 +189,7 @@ export default function Journal() {
     useLoaderData<typeof loader>();
   const { toast } = useToast();
   const chartRef = useRef<HTMLCanvasElement | null>(null);
+  const profitFactorChartRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     if (error) {
@@ -192,6 +211,7 @@ export default function Journal() {
     positiveTrades,
     breakEvenTrades,
     negativeTrades,
+    profitFactor,
   } = stats || {};
 
   useEffect(() => {
@@ -219,6 +239,38 @@ export default function Journal() {
       }
     }
   }, [positiveTrades, breakEvenTrades, negativeTrades]);
+
+  useEffect(() => {
+    if (profitFactorChartRef.current) {
+      const ctx = profitFactorChartRef.current.getContext("2d");
+      if (ctx) {
+        new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            datasets: [
+              {
+                data: [profitFactor, 1 - profitFactor],
+                backgroundColor: ["#10B981", "#EF4444"],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "80%",
+            plugins: {
+              tooltip: {
+                enabled: false,
+              },
+              legend: {
+                display: false,
+              },
+            },
+          },
+        });
+      }
+    }
+  }, [profitFactor]);
 
   // Format the selected date to match the key format in groupedTrades
   const selectedDateStr =
@@ -250,61 +302,88 @@ export default function Journal() {
       </div>
 
       <div className="flex flex-row justify-between gap-6 rounded bg-white p-4 shadow">
-        <Card className="border border-black">
-          <CardHeader>
-            <CardTitle>Total P&L</CardTitle>
-          </CardHeader>
-          <CardContent>{totalPnL}</CardContent>
-        </Card>
-        <Card className="border border-black">
-          <CardHeader>
-            <CardTitle>Positive P&L Days</CardTitle>
-          </CardHeader>
-          <CardContent>{positivePnLDays}</CardContent>
-        </Card>
-        <Card className="border border-black">
-          <CardHeader>
-            <CardTitle>Average Win/Loss</CardTitle>
-          </CardHeader>
-          <CardContent>{averageWinLoss}</CardContent>
-        </Card>
-        <Card className="border border-black">
-          <CardContent>
-            <div className="flex items-center gap-8">
-               {/* Left  */}
-                <div className="flex flex-col flex-1 justify-center">
-                  <h1>Trade Win %</h1>
-                  {/* Trade percentage  */}
-                  <div className="text-2xl font-bold">
-                    <p>{tradeWinPercentage}%
-                      </p>
-                  </div>
-                </div>
-                {/* Right  */}
-                <div className="flex flex-col flex-1">
-                  {/* Chart  */}
-                  <div>
-                    <canvas
-                      ref={chartRef}
-                      style={{ width: "100%", height: "100px" }}
-                    ></canvas>
-                  </div>
-                  {/* Under text  */}
-                  <div className="flex justify-between text-xs">
-                    <div className="flex items-center">
-                       <div className="text-green-500">{positiveTrades}</div>
-                    </div>
-                    <div className="flex items-center">
-                       <div className="text-yellow-500">{breakEvenTrades}</div>
-                    </div>
-                    <div className="flex items-center">
-                       <div className="text-red-500">{negativeTrades}</div>
-                    </div>
-                  </div>
-                </div>
+        <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
+          {/* Positive Days */}
+            <div className="flex flex-col flex-1 justify-center">
+              <h1>Net P&L</h1>
+              <div className="text-2xl font-bold">
+                <p>{totalPnL}</p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+        </div>
+
+        <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
+          {/* Positive Days */}
+            <div className="flex flex-col flex-1 justify-center">
+              <h1>Positive P&L Days</h1>
+              <div className="text-2xl font-bold">
+                <p>{positivePnLDays}</p>
+              </div>
+            </div>
+        </div>
+
+        <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
+          {/* Profit Factor */}
+            <div className="flex flex-col flex-1 justify-center">
+              <h1>Profit Factor</h1>
+              <div className="text-2xl font-bold">
+                <p>{profitFactor.toFixed(2)}</p>
+              </div>
+            </div>
+            <div className="flex-1">
+              <canvas
+                ref={profitFactorChartRef}
+                style={{ width: "100%", height: "100px" }}
+              ></canvas>
+            </div>
+        </div>
+
+        {/* Average Profit  */}
+        <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
+          {/* Left  */}
+          <div className="flex flex-col flex-1 justify-center">
+            <h1>Avg Win/Loss</h1>
+            {/* Trade percentage  */}
+            <div className="text-2xl font-bold">
+              <p>{averageWinLoss}</p>
+            </div>
+          </div>
+        </div>
+        {/* Trade Win Percentage  */}
+        <div className="border border-black p-4 rounded">
+          <div className="flex items-center gap-8">
+            {/* Left  */}
+            <div className="flex flex-col flex-1 justify-center">
+              <h1>Trade Win %</h1>
+              {/* Trade percentage  */}
+              <div className="text-2xl font-bold">
+                <p>{tradeWinPercentage}%</p>
+              </div>
+            </div>
+            {/* Right  */}
+            <div className="flex flex-col flex-1">
+              {/* Chart  */}
+              <div>
+                <canvas
+                  ref={chartRef}
+                  style={{ width: "100%", height: "100px" }}
+                ></canvas>
+              </div>
+              {/* Under text  */}
+              <div className="flex justify-between text-xs">
+                <div className="flex items-center">
+                  <div className="text-green-500">{positiveTrades}</div>
+                </div>
+                <div className="flex items-center">
+                  <div className="text-yellow-500">{breakEvenTrades}</div>
+                </div>
+                <div className="flex items-center">
+                  <div className="text-red-500">{negativeTrades}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <h1 className="mb-4 text-3xl font-bold">Recent Trades</h1>
