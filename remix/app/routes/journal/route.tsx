@@ -2,13 +2,17 @@
 import { Link, useLoaderData } from "@remix-run/react";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useQuery } from "@tanstack/react-query";
+// components
 import { Calendar } from "~/components/ui/calendar";
 import { Textarea } from "~/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { requireAuth } from "~/sessions.server";
-import React, { useEffect, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import MyGrid from "~/components/ui/my_grid";
+
+import { requireAuth } from "~/sessions.server";
+import React, { useEffect, useRef } from "react";
+
 import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import {
@@ -99,7 +103,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const now: any = new Date();
     for (const item of response) {
       const orderDate: any = new Date(item.order_created_at);
-      if (now - orderDate <= 5 * 24 * 60 * 60 * 1000) {
+      if (now - orderDate <= 30 * 24 * 60 * 60 * 1000) {
         final.push(item);
       }
     }
@@ -173,6 +177,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       negativeTrades,
       profitFactor,
     };
+
+    console.log("Grouped Trades: ", groupedTrades);
 
     console.log("Response 2:", stats);
     return { userid, stats, error: null };
@@ -304,38 +310,38 @@ export default function Journal() {
       <div className="flex flex-row justify-between gap-6 rounded bg-white p-4 shadow">
         <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
           {/* Positive Days */}
-            <div className="flex flex-col flex-1 justify-center">
-              <h1>Net P&L</h1>
-              <div className="text-2xl font-bold">
-                <p>{totalPnL}</p>
-              </div>
+          <div className="flex flex-col flex-1 justify-center">
+            <h1>Net P&L</h1>
+            <div className="text-2xl font-bold">
+              <p>{totalPnL}</p>
             </div>
+          </div>
         </div>
 
         <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
           {/* Positive Days */}
-            <div className="flex flex-col flex-1 justify-center">
-              <h1>Positive P&L Days</h1>
-              <div className="text-2xl font-bold">
-                <p>{positivePnLDays}</p>
-              </div>
+          <div className="flex flex-col flex-1 justify-center">
+            <h1>Positive P&L Days</h1>
+            <div className="text-2xl font-bold">
+              <p>{positivePnLDays}</p>
             </div>
+          </div>
         </div>
 
         <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
           {/* Profit Factor */}
-            <div className="flex flex-col flex-1 justify-center">
-              <h1>Profit Factor</h1>
-              <div className="text-2xl font-bold">
-                <p>{profitFactor.toFixed(2)}</p>
-              </div>
+          <div className="flex flex-col flex-1 justify-center">
+            <h1>Profit Factor</h1>
+            <div className="text-2xl font-bold">
+              <p>{profitFactor.toFixed(2)}</p>
             </div>
-            <div className="flex-1">
-              <canvas
-                ref={profitFactorChartRef}
-                style={{ width: "100%", height: "100px" }}
-              ></canvas>
-            </div>
+          </div>
+          <div className="flex-1">
+            <canvas
+              ref={profitFactorChartRef}
+              style={{ width: "100%", height: "100px" }}
+            ></canvas>
+          </div>
         </div>
 
         {/* Average Profit  */}
@@ -349,6 +355,7 @@ export default function Journal() {
             </div>
           </div>
         </div>
+
         {/* Trade Win Percentage  */}
         <div className="border border-black p-4 rounded">
           <div className="flex items-center gap-8">
@@ -415,28 +422,8 @@ export default function Journal() {
         )}
       </div>
 
-      <div className="flex flex-row">
-        <div>
-          <h1 className="mb-4 text-3xl font-bold">Calendar</h1>
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            className="rounded-md border"
-          />
-        </div>
-        {pnl && (
-          <div className="mt-4 rounded bg-white p-4 shadow md:ml-4 md:mt-0">
-            <h2 className="mb-2 text-xl font-bold">
-              Profit/Loss for {selectedDateStr}
-            </h2>
-            <p>Profit/Loss: ${pnl}</p>
-            <div className="pt-4">
-              <Textarea placeholder="Type your message here." />
-            </div>
-          </div>
-        )}
-      </div>
+      <h1 className="mb-4 text-3xl font-bold">Trade Journal</h1>
+      <MyGrid groupedTrades={groupedTrades} />
     </div>
   );
 }
