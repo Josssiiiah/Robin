@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 
-export default function MyGrid({ groupedTrades, tradesPerDay}: { groupedTrades: any, tradesPerDay: any}) {
+export default function MyGrid({
+  groupedTrades,
+  tradesPerDay,
+}: {
+  groupedTrades: any;
+  tradesPerDay: any;
+}) {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
@@ -27,10 +33,7 @@ export default function MyGrid({ groupedTrades, tradesPerDay}: { groupedTrades: 
         key={i}
         className="bg-gray-200 p-2 rounded flex items-center justify-center h-[30px]"
       >
-        <h2 className="text-xs">
-        {daysOfWeek[i - 1]}
-
-        </h2>
+        <h2 className="text-xs">{daysOfWeek[i - 1]}</h2>
       </div>
     );
   }
@@ -47,12 +50,17 @@ export default function MyGrid({ groupedTrades, tradesPerDay}: { groupedTrades: 
   const startingDay = getStartingDayOfMonth(currentMonth, currentYear);
   const cells = [];
 
- // Empty cells
+  // Empty cells
   for (let i = 0; i < startingDay; i++) {
-    cells.push(<div key={`empty-${i}`} className="bg-gray-100 rounded h-[70px] w-[90px]"></div>);
+    cells.push(
+      <div
+        key={`empty-${i}`}
+        className="bg-gray-100 rounded h-[75px] w-[95px]"
+      ></div>
+    );
   }
 
-    // Cells with dates 
+  // Cells with dates
   for (let i = 1; i <= daysInMonth; i++) {
     const dateStr = `${currentYear}-${(currentMonth + 1)
       .toString()
@@ -68,34 +76,44 @@ export default function MyGrid({ groupedTrades, tradesPerDay}: { groupedTrades: 
         2
       );
     }
-
     cells.push(
-        <div
-          key={i}
-          className={`flex items-center justify-center p-4 rounded relative h-[70px] w-[90px] border-2 text-right ${
-            profitLoss !== null
-              ? profitLoss >= 0
-                ? 'bg-green-500 border-green-400'
-                : 'bg-red-500 border-red-400'
-              : 'bg-gray-200'
-          }`}
+      <div
+        key={i}
+        className={`flex flex-col items-center justify-center pt-4 pr-2 rounded relative h-[75px] w-[95px] border-2 ${
+          profitLoss !== null
+            ? profitLoss >= 0
+              ? "bg-green-500 border-green-400"
+              : "bg-red-500 border-red-400"
+            : "bg-gray-200"
+        }`}
+      >
+        {/* Day of the week  */}
+        <p
+          className="absolute top-0 right-0 p-[2px] ml-auto"
+          style={{ fontSize: "0.75rem" }}
         >
-          <p className="absolute top-0 right-0 p-[2px] text-xs text-right t">
-            {i}
+          {i}
+        </p>
+        {/* Profit/Loss number  */}
+        {profitLoss !== null && (
+          <p className="text-white text-sm ml-auto">
+            {profitLoss >= 0
+              ? `$${Math.floor(profitLoss)}`
+              : `$${Math.floor(profitLoss)}`}
           </p>
-          {profitLoss !== null && (
-            <p className="text-white text-[1rem] text-right">
-              {profitLoss >= 0 ? `$${profitLoss}` : `$${profitLoss}`}
-            </p>
-          )}
-          {tradeCount > 0 && (
-            <p className="absolute bottom-0 left-0 p-[2px] text-xs text-right text-white rounded">
-              {tradeCount} trades
-            </p>
-          )}
-        </div>
-      );
-          }
+        )}
+        {/* Trade count number  */}
+        {tradeCount > 0 && (
+          <p
+            className="bottom-0 p-[2px] text-white rounded ml-auto"
+            style={{ fontSize: "0.6rem" }}
+          >
+            {tradeCount} trades
+          </p>
+        )}
+      </div>
+    );
+  }
 
   const goToPreviousMonth = () => {
     if (currentMonth === 0) {

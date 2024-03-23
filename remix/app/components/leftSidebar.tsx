@@ -1,0 +1,72 @@
+import { useState } from "react";
+import { ChevronRightIcon, ChevronLeftIcon } from "@radix-ui/react-icons";
+import { NavLink } from "@remix-run/react";
+
+export function ToggleLeftSidebar() {
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
+
+  const toggleLeftSidebar = () => {
+    setIsLeftSidebarOpen(!isLeftSidebarOpen);
+  };
+
+  return (
+    <>
+      {isLeftSidebarOpen && (
+        <div className="fixed left-0 top-0 bottom-0 w-64 bg-gray-800 p-4">
+          <nav>
+            <ul className="space-y-2">
+              <li>
+                <NavLink
+                  to="/dashboard"
+                  className={({ isActive }) =>
+                    `block px-4 py-2 text-white hover:bg-gray-700 ${
+                      isActive ? "bg-gray-700" : ""
+                    }`
+                  }
+                >
+                  Dashboard
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/journal"
+                  className={({ isActive }) =>
+                    `block px-4 py-2 text-white hover:bg-gray-700 ${
+                      isActive ? "bg-gray-700" : ""
+                    }`
+                  }
+                >
+                  Journal
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/notebook"
+                  className={({ isActive }) =>
+                    `block px-4 py-2 text-white hover:bg-gray-700 ${
+                      isActive ? "bg-gray-700" : ""
+                    }`
+                  }
+                >
+                  Notebook
+                </NavLink>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
+      <div
+        className={`${
+          isLeftSidebarOpen ? "left-[250px]" : "left-[10px]"
+        } fixed top-1/2 z-40 flex h-20 w-8 cursor-pointer items-center justify-center rounded-lg`}
+        onClick={toggleLeftSidebar}
+      >
+        {isLeftSidebarOpen ? (
+          <ChevronLeftIcon color="black" width={20} height={20} />
+        ) : (
+          <ChevronRightIcon color="black" width={20} height={20} />
+        )}
+      </div>
+    </>
+  );
+}
