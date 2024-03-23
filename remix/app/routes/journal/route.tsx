@@ -165,6 +165,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     const profitFactor = netLoss !== 0 ? netProfit / netLoss : 0;
 
+    const tradesPerDay: { [date: string]: number } = Object.entries(groupedTrades).reduce(
+      (acc: { [date: string]: number }, [date, info]: [string, any]) => {
+        acc[date] = info.trades.length;
+        return acc;
+      },
+      {}
+    );
+
     const stats = {
       userId: userid,
       totalPnL: Math.round(totalPnL),
@@ -176,6 +184,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       breakEvenTrades,
       negativeTrades,
       profitFactor,
+      tradesPerDay,
     };
 
     console.log("Grouped Trades: ", groupedTrades);
@@ -218,6 +227,7 @@ export default function Journal() {
     breakEvenTrades,
     negativeTrades,
     profitFactor,
+    tradesPerDay = {}
   } = stats || {};
 
   useEffect(() => {
@@ -421,9 +431,16 @@ export default function Journal() {
           )
         )}
       </div>
+      <div className="flex flex-row">
+        <div className="flex flex-1 border border-blue-50">
 
-      <h1 className="mb-4 text-3xl font-bold">Trade Journal</h1>
-      <MyGrid groupedTrades={groupedTrades} />
+        </div>
+        <div className="flex flex-2 border border-blue-50">
+          <MyGrid groupedTrades={groupedTrades} tradesPerDay = {tradesPerDay} />
+        </div>
+        
+      </div>
+     
     </div>
   );
 }
