@@ -1,8 +1,14 @@
-import { LoaderFunctionArgs } from '@remix-run/node';
-import { createClient } from '@supabase/supabase-js';
-import axios from 'axios';
- import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '~/components/ui/card';
-import { requireAuth } from '~/sessions.server';
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { createClient } from "@supabase/supabase-js";
+import axios from "axios";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "~/components/ui/card";
+import { requireAuth } from "~/sessions.server";
 
 // -----------------------------------------------------------------------------
 // LOADER FUNCTION
@@ -103,14 +109,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
     }
 
-
-
     const stats = {
       userId: userid,
       groupedTrades,
     };
 
-  
     // console.log("Response 2:", stats);
     return { userid, stats, error: null };
   } catch (error) {
@@ -119,13 +122,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 }
 
-
 export default function route() {
   const data = {
-    value1: 'Value 1',
-    value2: 'Value 2',
-    value3: 'Value 3',
-    value4: 'Value 4',
+    value1: "Value 1",
+    value2: "Value 2",
+    value3: "Value 3",
+    value4: "Value 4",
   };
 
   return (

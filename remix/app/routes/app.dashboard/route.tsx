@@ -67,6 +67,70 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     };
 
+    interface Trade {
+      symbol: string;
+      // openingOrder: any;
+      // closingOrder: any;
+      quantity: number;
+      openPrice: number;
+      closePrice: number;
+      pnl: number;
+      closeDate: string;
+    }
+
+    function processFullTrades(data: any) {
+      const openPositions: { [key: string]: any[] } = {};
+      const completedTrades: Trade[] = [];
+
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          const orders = data[key];
+          if (Array.isArray(orders)) {
+            for (const order of orders) {
+              if (order.state === "filled") {
+                for (const leg of order.legs) {
+                  const legId = leg.option;
+                  const quantity = parseFloat(order.processed_quantity);
+                  const price = parseFloat(order.price);
+
+                  if (leg.side === "buy") {
+                    if (!openPositions[legId]) {
+                      openPositions[legId] = [];
+                    }
+                    openPositions[legId].push({ order, quantity, price });
+                  } else if (leg.side === "sell") {
+                    if (
+                      openPositions[legId] &&
+                      openPositions[legId].length > 0
+                    ) {
+                      const openPosition = openPositions[legId].shift();
+                      const openQuantity = openPosition.quantity;
+                      const openPrice = openPosition.price;
+                      const pnl = (price - openPrice) * openQuantity * 100;
+
+                      const trade: Trade = {
+                        symbol: order.chain_symbol,
+                        // openingOrder: openPosition.order,
+                        // closingOrder: order,
+                        quantity: openQuantity,
+                        openPrice,
+                        closePrice: price,
+                        pnl,
+                        closeDate: order.updated_at,
+                      };
+                      completedTrades.push(trade);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return completedTrades;
+    }
+
     function processOrders(data: any) {
       const ret = [];
 
@@ -78,6 +142,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
             for (const order of orders) {
               if (order.state === "filled") {
                 for (const leg of order.legs) {
+                  const order_leg = leg;
                   const i = {
                     symbol: order.chain_symbol,
                     side: leg.side,
@@ -86,6 +151,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
                     processed_quantity: order.processed_quantity,
                   };
                   ret.push(i);
+                  break;
                 }
               }
             }
@@ -97,18 +163,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     const response2 = await axios(options);
     const response = processOrders(response2.data);
+    const fullTrades = processFullTrades(response2.data);
     const final = [];
+    const finalFullTrades = [];
 
     // Filter by last 12 days
     const now: any = new Date();
     for (const item of response) {
       const orderDate: any = new Date(item.order_created_at);
-      if (now - orderDate <= 30 * 24 * 60 * 60 * 1000) {
+      if (now - orderDate <= 8 * 24 * 60 * 60 * 1000) {
         final.push(item);
       }
     }
 
-    // Perform calculations on the server-side
+    for (const fullTrade of fullTrades) {
+      const date:any = new Date(fullTrade.closeDate);
+      if (now - date <=  8 * 24 * 60 * 60 * 1000) {
+        finalFullTrades.push(fullTrade);
+      }
+    }
+    
+
+    // Grouped trades by date
     const groupedTrades: any = {};
     for (const item of final) {
       const date = item.order_created_at.split("T")[0]; // Extract date part
@@ -125,11 +201,25 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
     }
 
+    // Grouped full trades by date
+    const groupedFullTrades: any = {};
+    for (const trade of finalFullTrades) {
+      const date = trade.closeDate.split("T")[0]; // Extract date part
+      if (!groupedFullTrades[date]) {
+        groupedFullTrades[date] = { trades: [], totalPnL: 0 };
+      }
+      groupedFullTrades[date].trades.push(trade);
+      groupedFullTrades[date].totalPnL += trade.pnl;
+    }
+
+    // Total Pnl
     const totalPnL = Object.values(groupedTrades).reduce(
       (sum: number, group: any) =>
         sum + (group.totalSell - group.totalBuy) * 100,
       0
     );
+
+    // Consecutive positive days
     const positivePnLDays = Object.values(groupedTrades).filter(
       (group: any) => group.totalSell - group.totalBuy > 0
     ).length;
@@ -138,6 +228,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       (positivePnLDays / Object.keys(groupedTrades).length) * 100
     );
 
+    // Positive trades
     const positiveTrades = Object.values(groupedTrades).filter(
       (group: any) => group.totalSell - group.totalBuy > 0
     ).length;
@@ -186,11 +277,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
       tradesPerDay,
     };
 
-    console.log("Grouped Trades: ", groupedTrades);
-    console.log("Specific grouped trades: ", groupedTrades["2024-03-12"]["trades"][0]);
+    // console.log("grouped full trades: ", groupedFullTrades);
+    // console.log("Grouped Trades: ", groupedTrades);
 
-    
-    
+    // console.log("Specific grouped trade", groupedTrades["2024-03-21"]);
+    console.log("Specific grouped trade", groupedFullTrades["2024-03-21"]);
 
     // console.log("Response 2:", stats);
     return { userid, stats, error: null };
@@ -435,11 +526,7 @@ export default function Journal() {
         )}
       </div>
       <div className="flex flex-row">
-        <div className="flex flex-1 border border-blue-50">
-       
-
-          
-        </div>
+        <div className="flex flex-1 border border-blue-50"></div>
         <div className="flex flex-2 border border-blue-50">
           <MyGrid groupedTrades={groupedTrades} tradesPerDay={tradesPerDay} />
         </div>

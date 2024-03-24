@@ -1,14 +1,12 @@
-import { Outlet } from '@remix-run/react'
-import React from 'react'
-import { LeftSidebar } from './leftSidebar'
-
+import { Outlet } from "@remix-run/react";
+import React from "react";
+import { LeftSidebar } from "./leftSidebar";
 
 export default function route() {
   return (
-    <div>
-        <LeftSidebar />
-        <Outlet />
-
+    <div className="w-full h-full items-center justify-center mx-auto">
+      <LeftSidebar />
+      <Outlet />
     </div>
-  )
+  );
 }
