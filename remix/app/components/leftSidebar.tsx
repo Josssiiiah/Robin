@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@radix-ui/react-icons";
+import { commitSession, getSession } from "~/sessions.server";
 import { NavLink } from "@remix-run/react";
 
 export function ToggleLeftSidebar() {
@@ -41,14 +42,14 @@ export function ToggleLeftSidebar() {
               </li>
               <li>
                 <NavLink
-                  to="/notebook"
+                  to="/nightBefore"
                   className={({ isActive }) =>
                     `block px-4 py-2 text-white hover:bg-gray-700 ${
                       isActive ? "bg-gray-700" : ""
                     }`
                   }
                 >
-                  Notebook
+                  Night Before
                 </NavLink>
               </li>
             </ul>
