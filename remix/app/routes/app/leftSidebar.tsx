@@ -3,7 +3,7 @@ import { ChevronRightIcon, ChevronLeftIcon } from "@radix-ui/react-icons";
 import { commitSession, getSession } from "~/sessions.server";
 import { NavLink } from "@remix-run/react";
 
-export function ToggleLeftSidebar() {
+export function LeftSidebar() {
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
 
   const toggleLeftSidebar = () => {
@@ -13,12 +13,12 @@ export function ToggleLeftSidebar() {
   return (
     <>
       {isLeftSidebarOpen && (
-        <div className="fixed left-0 top-0 bottom-0 w-64 bg-gray-800 p-4">
+        <div className="fixed left-0 top-0 bottom-0 z-10 w-64 bg-gray-800 p-4">
           <nav>
             <ul className="space-y-2">
               <li>
                 <NavLink
-                  to="/dashboard"
+                  to="/app/dashboard"
                   className={({ isActive }) =>
                     `block px-4 py-2 text-white hover:bg-gray-700 ${
                       isActive ? "bg-gray-700" : ""
@@ -30,7 +30,7 @@ export function ToggleLeftSidebar() {
               </li>
               <li>
                 <NavLink
-                  to="/journal"
+                  to="/app/journal"
                   className={({ isActive }) =>
                     `block px-4 py-2 text-white hover:bg-gray-700 ${
                       isActive ? "bg-gray-700" : ""
@@ -42,7 +42,7 @@ export function ToggleLeftSidebar() {
               </li>
               <li>
                 <NavLink
-                  to="/nightBefore"
+                  to="/app/nightBefore"
                   className={({ isActive }) =>
                     `block px-4 py-2 text-white hover:bg-gray-700 ${
                       isActive ? "bg-gray-700" : ""

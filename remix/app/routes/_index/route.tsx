@@ -3,8 +3,6 @@
 // remix
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { ToggleLeftSidebar } from "~/components/leftSidebar";
-
 //ui
 import { Button } from "~/components/ui/button";
 import { getSession } from "~/sessions.server";
@@ -59,7 +57,7 @@ export default function Index() {
       <div className="pt-10">
         <Button className="flex">
           <Link
-            to="/dashboard"
+            to="/app/dashboard"
             className="cursor-pointer py-[5px] text-center no-underline"
           >
             Start Journaling

@@ -9,7 +9,6 @@ import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import MyGrid from "~/components/ui/my_grid";
-import { ToggleLeftSidebar } from "~/components/leftSidebar";
 
 import { requireAuth } from "~/sessions.server";
 import React, { useEffect, useRef } from "react";
@@ -307,7 +306,6 @@ export default function Journal() {
 
   return (
     <div className="items-left flex flex-col gap-8 bg-slate-400 p-10">
-      <ToggleLeftSidebar />
       <div className="flex flex-row justify-between ">
         <Button>
           <Link to="/" className="cursor-pointer no-underline">

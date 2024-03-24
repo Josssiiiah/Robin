@@ -1,8 +1,7 @@
 import { LoaderFunctionArgs } from '@remix-run/node';
 import { createClient } from '@supabase/supabase-js';
 import axios from 'axios';
-import { ToggleLeftSidebar } from '~/components/leftSidebar';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '~/components/ui/card';
+ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '~/components/ui/card';
 import { requireAuth } from '~/sessions.server';
 
 // -----------------------------------------------------------------------------
@@ -133,7 +132,6 @@ export default function route() {
     <div className="flex flex-col p-10 h-screen">
       <div className="flex text-center items-center justify-center">
         <h1 className="text-4xl text-black font-bold">Journal</h1>
-        <ToggleLeftSidebar />
       </div>
       <div className="flex flex-col mt-8 gap-4">
         {Object.entries(data).map(([key, value]) => (
