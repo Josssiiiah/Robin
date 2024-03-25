@@ -3,12 +3,10 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useQuery } from "@tanstack/react-query";
 // components
-import { Calendar } from "~/components/ui/calendar";
-import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import MyGrid from "~/components/ui/my_grid";
+import Calendar from "~/components/ui/calendar";
+import Recent from "~/components/recent";
 
 import { requireAuth } from "~/sessions.server";
 import React, { useEffect, useRef } from "react";
@@ -177,12 +175,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
 
     for (const fullTrade of fullTrades) {
-      const date:any = new Date(fullTrade.closeDate);
-      if (now - date <=  8 * 24 * 60 * 60 * 1000) {
+      const date: any = new Date(fullTrade.closeDate);
+      if (now - date <= 8 * 24 * 60 * 60 * 1000) {
         finalFullTrades.push(fullTrade);
       }
     }
-    
 
     // Grouped trades by date
     const groupedTrades: any = {};
@@ -411,7 +408,7 @@ export default function Journal() {
         </Button>
       </div>
 
-      <div className="flex flex-row justify-between gap-6 rounded bg-white p-4 shadow">
+      <div className="flex flex-row justify-between gap-6 rounded p-4 shadow">
         <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
           {/* Positive Days */}
           <div className="flex flex-col flex-1 justify-center">
@@ -496,7 +493,7 @@ export default function Journal() {
           </div>
         </div>
       </div>
-
+      {/* 
       <h1 className="mb-4 text-3xl font-bold">Recent Trades</h1>
       <div className="flex flex-wrap gap-6">
         {Object.entries(groupedTrades).map(
@@ -524,11 +521,21 @@ export default function Journal() {
             </Card>
           )
         )}
-      </div>
-      <div className="flex flex-row">
-        <div className="flex flex-1 border border-blue-50"></div>
-        <div className="flex flex-2 border border-blue-50">
-          <MyGrid groupedTrades={groupedTrades} tradesPerDay={tradesPerDay} />
+        
+      </div> */}
+      <div className="flex flex-col md:flex-row shadow-xl rounded p-4 ">
+        <div className="flex-2 ">
+          <div className="flex w-full">
+            <Recent />
+          </div>
+        </div>
+        <div className="flex-1">
+          <div className="flex justify-center">
+            <Calendar
+              groupedTrades={groupedTrades}
+              tradesPerDay={tradesPerDay}
+            />
+          </div>
         </div>
       </div>
     </div>

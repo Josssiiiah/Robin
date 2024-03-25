@@ -30,7 +30,7 @@ export default function Index() {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex h-full w-full flex-col items-center">
+    <div className="flex h-full w-full flex-col items-center ">
       <div className="flex w-full max-w-[1440px] flex-row items-center justify-end pr-4 pt-2">
         {data.isUser ? (
           <Button>
@@ -46,12 +46,12 @@ export default function Index() {
           </Button>
         )}
       </div>
-      <h1 className="pt-[200px] text-5xl">
+      <h1 className="pt-[250px] text-7xl ">
         <strong>Next-Gen Trading Journal</strong>
       </h1>
-      <p className="flex items-center pt-6 text-center">
-        TradZellaK helps you discover your strengths and weaknesses to become a{" "}
-        <br />
+      <p className="flex items-center pt-6 text-center text-xl ">
+        TradeZellaAtHome helps you discover your strengths and weaknesses to
+        become a <br />
         profitable trader with the power of journaling and analytics.{" "}
       </p>
       <div className="pt-10">

@@ -1,65 +1,159 @@
-import * as React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker } from "react-day-picker";
+import { useEffect, useState } from "react";
 
-import { cn } from "~/lib/utils";
-import { buttonVariants } from "~/components/ui/button";
+export default function Calendar({
+  groupedTrades,
+  tradesPerDay,
+}: {
+  groupedTrades: any;
+  tradesPerDay: any;
+}) {
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
-function Calendar({
-  className,
-  classNames,
-  showOutsideDays = true,
-  ...props
-}: CalendarProps) {
+  const days = [];
+  for (let i = 1; i <= daysOfWeek.length; i++) {
+    days.push(
+      <div
+        key={i}
+        className="bg-gray-200 p-2 rounded flex items-center justify-center h-[30px]"
+      >
+        <h2 className="text-xs">{daysOfWeek[i - 1]}</h2>
+      </div>
+    );
+  }
+
+  const getDaysInMonth = (month: number, year: number) => {
+    return new Date(year, month + 1, 0).getDate();
+  };
+
+  const getStartingDayOfMonth = (month: number, year: number) => {
+    return new Date(year, month, 1).getDay();
+  };
+
+  const daysInMonth = getDaysInMonth(currentMonth, currentYear);
+  const startingDay = getStartingDayOfMonth(currentMonth, currentYear);
+  const cells = [];
+
+  // Empty cells
+  for (let i = 0; i < startingDay; i++) {
+    cells.push(
+      <div
+        key={`empty-${i}`}
+        className="bg-gray-100 rounded h-[75px] w-[95px]"
+      ></div>
+    );
+  }
+
+  // Cells with dates
+  for (let i = 1; i <= daysInMonth; i++) {
+    const dateStr = `${currentYear}-${(currentMonth + 1)
+      .toString()
+      .padStart(2, "0")}-${i.toString().padStart(2, "0")}`;
+
+    const tradeCount = tradesPerDay[dateStr] || 0;
+
+    const tradeInfo = groupedTrades[dateStr];
+    let profitLoss: any = null;
+
+    if (tradeInfo) {
+      profitLoss = ((tradeInfo.totalSell - tradeInfo.totalBuy) * 100).toFixed(
+        2
+      );
+    }
+    cells.push(
+      <div
+        key={i}
+        className={`flex flex-col items-center justify-center pt-4 pr-2 rounded relative h-[75px] w-[95px] border-2 ${
+          profitLoss !== null
+            ? profitLoss >= 0
+              ? "bg-green-500 border-green-400"
+              : "bg-red-500 border-red-400"
+            : "bg-gray-200"
+        }`}
+      >
+        {/* Day (number) of the week  */}
+        <p
+          className="absolute top-0 right-0 p-[2px] pr-1 ml-auto"
+          style={{ fontSize: "0.75rem" }}
+        >
+          {i}
+        </p>
+        {/* Profit/Loss number  */}
+        {profitLoss !== null && (
+          <p className="text-white text-sm ml-auto">
+            {profitLoss >= 0
+              ? `$${Math.floor(profitLoss)}`
+              : `$${Math.floor(profitLoss)}`}
+          </p>
+        )}
+        {/* Trade count number  */}
+        {tradeCount > 0 && (
+          <p
+            className="bottom-0 p-[2px] text-white rounded ml-auto"
+            style={{ fontSize: "0.6rem" }}
+          >
+            {tradeCount} trades
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  const goToPreviousMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(currentYear - 1);
+    } else {
+      setCurrentMonth(currentMonth - 1);
+    }
+  };
+
+  const goToNextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(currentYear + 1);
+    } else {
+      setCurrentMonth(currentMonth + 1);
+    }
+  };
+
   return (
-    <DayPicker
-      showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
-      classNames={{
-        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-        month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium",
-        nav: "space-x-1 flex items-center",
-        nav_button: cn(
-          buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
-        ),
-        nav_button_previous: "absolute left-1",
-        nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-y-1",
-        head_row: "flex",
-        head_cell:
-          "text-slate-500 rounded-md w-9 font-normal text-[0.8rem] dark:text-slate-400",
-        row: "flex w-full mt-2",
-        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-slate-100/50 [&:has([aria-selected])]:bg-slate-100 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 dark:[&:has([aria-selected].day-outside)]:bg-slate-800/50 dark:[&:has([aria-selected])]:bg-slate-800",
-        day: cn(
-          buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
-        ),
-        day_range_end: "day-range-end",
-        day_selected:
-          "bg-slate-900 text-slate-50 hover:bg-slate-900 hover:text-slate-50 focus:bg-slate-900 focus:text-slate-50 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50 dark:hover:text-slate-900 dark:focus:bg-slate-50 dark:focus:text-slate-900",
-        day_today:
-          "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-50",
-        day_outside:
-          "day-outside text-slate-500 opacity-50 aria-selected:bg-slate-100/50 aria-selected:text-slate-500 aria-selected:opacity-30 dark:text-slate-400 dark:aria-selected:bg-slate-800/50 dark:aria-selected:text-slate-400",
-        day_disabled: "text-slate-500 opacity-50 dark:text-slate-400",
-        day_range_middle:
-          "aria-selected:bg-slate-100 aria-selected:text-slate-900 dark:aria-selected:bg-slate-800 dark:aria-selected:text-slate-50",
-        day_hidden: "invisible",
-        ...classNames,
-      }}
-      components={{
-        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
-        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
-      }}
-      {...props}
-    />
+    <div className="border border-black rounded">
+      <div className="flex justify-between mb-4">
+        <button
+          className="bg-black text-white px-4 py-2 rounded"
+          onClick={goToPreviousMonth}
+        >
+          Previous Month
+        </button>
+        <span className="text-xl font-bold">
+          {monthNames[currentMonth]} {currentYear}
+        </span>
+        <button
+          className="bg-black text-white px-4 py-2 rounded"
+          onClick={goToNextMonth}
+        >
+          Next Month
+        </button>
+      </div>
+      <div className="grid grid-cols-7 gap-1 mb-1 flex-1">{days}</div>
+      <div className="grid grid-cols-7 grid-rows-5 gap-1 flex-1">{cells}</div>
+    </div>
   );
 }
-Calendar.displayName = "Calendar";
-
-export { Calendar };

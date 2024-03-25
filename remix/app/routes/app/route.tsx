@@ -4,7 +4,7 @@ import { LeftSidebar } from "./leftSidebar";
 
 export default function route() {
   return (
-    <div className="w-full h-full items-center justify-center mx-auto">
+    <div className="w-full h-full items-center justify-center mx-auto bg-black">
       <LeftSidebar />
       <Outlet />
     </div>
