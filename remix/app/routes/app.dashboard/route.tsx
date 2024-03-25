@@ -393,7 +393,7 @@ export default function Journal() {
     : null;
 
   return (
-    <div className="items-left flex flex-col gap-8 bg-slate-400 p-10">
+    <div className="items-left flex flex-col gap-8 p-10 bg-gray-200">
       <div className="flex flex-row justify-between ">
         <Button>
           <Link to="/" className="cursor-pointer no-underline">
@@ -408,7 +408,7 @@ export default function Journal() {
         </Button>
       </div>
 
-      <div className="flex flex-row justify-between gap-6 rounded p-4 shadow">
+      <div className="flex flex-row justify-between gap-6 rounded p-4 shadow  bg-white">
         <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
           {/* Positive Days */}
           <div className="flex flex-col flex-1 justify-center">
@@ -523,19 +523,19 @@ export default function Journal() {
         )}
         
       </div> */}
-      <div className="flex flex-col md:flex-row shadow-xl rounded p-4 ">
-        <div className="flex-2 ">
+      <div className="flex flex-col md:flex-row gap-6 shadow-xl rounded">
+        <div className="flex-2 bg-white rounded py-10">
           <div className="flex w-full">
             <Recent />
           </div>
         </div>
-        <div className="flex-1">
-          <div className="flex justify-center">
+        <div className="flex-1 bg-white rounded px-10 py-10">
+          
             <Calendar
               groupedTrades={groupedTrades}
               tradesPerDay={tradesPerDay}
             />
-          </div>
+         
         </div>
       </div>
     </div>

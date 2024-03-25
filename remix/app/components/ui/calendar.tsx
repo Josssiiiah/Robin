@@ -55,7 +55,7 @@ export default function Calendar({
     cells.push(
       <div
         key={`empty-${i}`}
-        className="bg-gray-100 rounded h-[75px] w-[95px]"
+        className="bg-gray-100 rounded h-[75px] w-full"
       ></div>
     );
   }
@@ -79,7 +79,7 @@ export default function Calendar({
     cells.push(
       <div
         key={i}
-        className={`flex flex-col items-center justify-center pt-4 pr-2 rounded relative h-[75px] w-[95px] border-2 ${
+        className={`flex flex-col items-center justify-center pt-4 pr-2 rounded relative h-[75px] w-full border-2 ${
           profitLoss !== null
             ? profitLoss >= 0
               ? "bg-green-500 border-green-400"
@@ -134,7 +134,7 @@ export default function Calendar({
   };
 
   return (
-    <div className="border border-black rounded">
+    <div className="rounded">
       <div className="flex justify-between mb-4">
         <button
           className="bg-black text-white px-4 py-2 rounded"
