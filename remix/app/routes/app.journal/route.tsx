@@ -131,11 +131,11 @@ export default function route() {
   };
 
   return (
-    <div className="flex flex-col p-10 h-screen">
+    <div className="flex flex-col items-center p-10 h-screen">
       <div className="flex text-center items-center justify-center">
         <h1 className="text-4xl text-black font-bold">Journal</h1>
       </div>
-      <div className="flex flex-col mt-8 gap-4">
+      <div className="flex flex-col items-center justify-center mt-8 gap-4 w-full px-[250px]">
         {Object.entries(data).map(([key, value]) => (
           <Card key={key} className="w-full px-4">
             <CardHeader>

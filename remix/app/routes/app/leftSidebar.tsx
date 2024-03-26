@@ -13,15 +13,15 @@ export function LeftSidebar() {
   return (
     <>
       {isLeftSidebarOpen && (
-        <div className="fixed left-0 top-0 bottom-0 z-10 w-64 bg-gray-800 p-4">
+        <div className="fixed left-0 top-0 bottom-0 z-10 w-64 bg-black p-4">
           <nav>
             <ul className="space-y-2">
               <li>
                 <NavLink
                   to="/app/dashboard"
                   className={({ isActive }) =>
-                    `block px-4 py-2 text-white hover:bg-gray-700 ${
-                      isActive ? "bg-gray-700" : ""
+                    `block px-4 py-2 text-white hover:bg-gray-500 ${
+                      isActive ? "bg-gray-500" : ""
                     }`
                   }
                 >
@@ -32,8 +32,8 @@ export function LeftSidebar() {
                 <NavLink
                   to="/app/journal"
                   className={({ isActive }) =>
-                    `block px-4 py-2 text-white hover:bg-gray-700 ${
-                      isActive ? "bg-gray-700" : ""
+                    `block px-4 py-2 text-white hover:bg-gray-500 ${
+                      isActive ? "bg-gray-500" : ""
                     }`
                   }
                 >
@@ -44,8 +44,8 @@ export function LeftSidebar() {
                 <NavLink
                   to="/app/nightBefore"
                   className={({ isActive }) =>
-                    `block px-4 py-2 text-white hover:bg-gray-700 ${
-                      isActive ? "bg-gray-700" : ""
+                    `block px-4 py-2 text-white hover:bg-gray-500 ${
+                      isActive ? "bg-gray-500" : ""
                     }`
                   }
                 >

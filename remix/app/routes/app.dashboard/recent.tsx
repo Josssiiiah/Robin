@@ -4,7 +4,7 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-} from "../components/ui/card";
+} from "../../components/ui/card";
 
 const mockTrades = [
   {
@@ -58,31 +58,5 @@ export default function RecentTrades() {
         ))}
       </div>
     </div>
-    // <div className="flex flex-col gap-4 w-full px-16 text-center">
-    //   <h1 className="text-2xl font-bold">Recent Trades</h1>
-    // <div className="border px-10 w-full">
-    // <div className="flex justify-between font-bold w-full px-10 py-4">
-    //   <p className="w-1/3">Close Date</p>
-    //   <p className="w-1/3">Symbol</p>
-    //   <p className="w-1/3">Net P&L</p>
-    // </div>
-    // {mockTrades.map((trade, index) => (
-    //   <div className="flex justify-between px py-2" key={index}>
-    //     <p className="w-1/3">{trade.closeDate}</p>
-    //     <p className="w-1/3">{trade.symbol}</p>
-    //     <p className="w-1/3">
-    //       {trade.pnl >= 0 ? (
-    //         <span className="text-green-500">{`$${trade.pnl.toFixed(2)}`}</span>
-    //       ) : (
-    //         <span className="text-red-500">{`-$${Math.abs(trade.pnl).toFixed(2)}`}</span>
-    //       )}
-    //     </p>
-    //   </div>
-    // ))}
-    //     <div className="flex justify-center py-4">
-    //       <p className="text-blue-500 cursor-pointer hover:underline">View More</p>
-    //     </div>
-    //   </div>
-    // </div>
   );
 }

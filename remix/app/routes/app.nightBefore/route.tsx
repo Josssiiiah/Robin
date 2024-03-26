@@ -1,4 +1,7 @@
 import { useState } from 'react';
+// components
+import { Input } from '~/components/ui/input';
+import { Textarea } from '~/components/ui/textarea';
 
 interface TradePlan {
   tickers: string[];
@@ -36,35 +39,35 @@ export default function NightBefore() {
       <div className="flex text-center items-center justify-center">
         <h1 className="text-4xl text-black font-bold">Night Before</h1>
       </div>
-      <div className="flex flex-row">
-        <div className="flex flex-1 flex-col items-center justify-center">
-          <h2 className="text-black mb-4">Plan out your trades</h2>
+      <div className="flex flex-row gap-8 px-32 py-12">
+        <div className="flex flex-1 flex-col items-center justify-center py-8 bg-white rounded-xl">
+          <h2 className="text-black mb-4 font-bold text-3xl py-4">Plan out your trades</h2>
           {tickers.map((ticker, index) => (
-            <div key={index} className="mb-4">
-              <input
+            <div key={index} className="flex gap-4 mb-4">
+              <Input
                 type="text"
                 placeholder={`Ticker ${index + 1}`}
                 value={ticker}
                 onChange={(e) => handleTickerChange(index, e.target.value)}
-                className="border border-gray-300 rounded px-2 py-1 mr-2"
+                className="border border-gray-300 rounded px-2 py-1 w-1/2"
               />
-              <textarea
+              <Textarea
                 placeholder={`Notes for ${ticker}`}
                 value={notes[index]}
                 onChange={(e) => handleNoteChange(index, e.target.value)}
                 className="border border-gray-300 rounded px-2 py-1"
-              ></textarea>
+              ></Textarea>
             </div>
           ))}
           <button
             onClick={handleSavePlan}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-black text-white px-4 py-2 rounded"
           >
             Save Plan
           </button>
         </div>
-        <div className="flex flex-1 flex-col items-center justify-center">
-          <h2 className="text-black mb-4">Execute your trade plan</h2>
+        <div className="flex flex-1 flex-col items-center py-8 bg-white rounded-xl">
+          <h2 className="text-black mb-4 font-bold text-3xl py-4">Execute your trade plan</h2>
           {savedPlan ? (
             <>
               <ul>

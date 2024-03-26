@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 // components
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
-import Calendar from "~/components/ui/calendar";
-import Recent from "~/components/recent";
+import Calendar from "~/routes/app.dashboard/calendar";
+import Recent from "~/routes/app.dashboard/recent";
 
 import { requireAuth } from "~/sessions.server";
 import React, { useEffect, useRef } from "react";
@@ -408,8 +408,8 @@ export default function Journal() {
         </Button>
       </div>
 
-      <div className="flex flex-row justify-between gap-6 rounded p-4 shadow  bg-white">
-        <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
+      <div className="flex flex-row justify-between gap-6 rounded-xl">
+        <div className=" border flex items-center justify-center gap-8 p-4 rounded-xl bg-white shadow w-full">
           {/* Positive Days */}
           <div className="flex flex-col flex-1 justify-center">
             <h1>Net P&L</h1>
@@ -419,7 +419,7 @@ export default function Journal() {
           </div>
         </div>
 
-        <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
+        <div className=" border flex items-center justify-center gap-8 p-4 rounded-xl bg-white shadow w-full">
           {/* Positive Days */}
           <div className="flex flex-col flex-1 justify-center">
             <h1>Positive P&L Days</h1>
@@ -429,7 +429,7 @@ export default function Journal() {
           </div>
         </div>
 
-        <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
+        <div className=" border flex items-center justify-center gap-8 p-4 rounded-xl bg-white shadow w-full">
           {/* Profit Factor */}
           <div className="flex flex-col flex-1 justify-center">
             <h1>Profit Factor</h1>
@@ -445,20 +445,8 @@ export default function Journal() {
           </div>
         </div>
 
-        {/* Average Profit  */}
-        <div className=" border border-black flex items-center justify-center gap-8 p-4 rounded">
-          {/* Left  */}
-          <div className="flex flex-col flex-1 justify-center">
-            <h1>Avg Win/Loss</h1>
-            {/* Trade percentage  */}
-            <div className="text-2xl font-bold">
-              <p>{averageWinLoss}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Trade Win Percentage  */}
-        <div className="border border-black p-4 rounded">
+           {/* Trade Win Percentage  */}
+           <div className="border p-4 rounded-xl bg-white shadow w-full">
           <div className="flex items-center gap-8">
             {/* Left  */}
             <div className="flex flex-col flex-1 justify-center">
@@ -492,50 +480,33 @@ export default function Journal() {
             </div>
           </div>
         </div>
+
+        {/* Average Profit  */}
+        <div className=" border flex items-center justify-center gap-8 p-4 rounded-xl bg-white shadow w-full">
+          {/* Left  */}
+          <div className="flex flex-col flex-1 justify-center">
+            <h1>Avg Profit</h1>
+            {/* Trade percentage  */}
+            <div className="text-2xl font-bold">
+              <p>{averageWinLoss}</p>
+            </div>
+          </div>
+        </div>
+
+     
       </div>
-      {/* 
-      <h1 className="mb-4 text-3xl font-bold">Recent Trades</h1>
-      <div className="flex flex-wrap gap-6">
-        {Object.entries(groupedTrades).map(
-          ([date, info]: [string, any], index) => (
-            <Card
-              className="border bg-slate-500 hover:border-blue-500"
-              key={index}
-            >
-              <CardHeader>
-                <CardTitle>{date}</CardTitle>
-              </CardHeader>
-              <div className="rounded bg-white p-4 shadow">
-                <p className="mb-4">
-                  {(info.totalSell - info.totalBuy) * 100 >= 0
-                    ? `Profit: $${(
-                        (info.totalSell - info.totalBuy) *
-                        100
-                      ).toFixed(2)}`
-                    : `Loss: $${(
-                        (info.totalSell - info.totalBuy) *
-                        100
-                      ).toFixed(2)}`}
-                </p>
-              </div>
-            </Card>
-          )
-        )}
-        
-      </div> */}
-      <div className="flex flex-col md:flex-row gap-6 shadow-xl rounded">
-        <div className="flex-2 bg-white rounded py-10">
+      <div className="flex flex-col md:flex-row gap-6 shadow-xl rounded-xl">
+        <div className="flex-2 bg-white rounded-xl py-10">
           <div className="flex w-full">
             <Recent />
           </div>
         </div>
-        <div className="flex-1 bg-white rounded px-10 py-10">
+        <div className="flex-1 bg-white rounded-xl px-10 py-10">
           
             <Calendar
               groupedTrades={groupedTrades}
               tradesPerDay={tradesPerDay}
             />
-         
         </div>
       </div>
     </div>
