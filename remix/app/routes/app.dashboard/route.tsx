@@ -400,7 +400,7 @@ export default function Journal() {
             Back
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-4xl font-bold">Dashboard</h1>
         <Button>
           <Link to="/connect" className="cursor-pointer no-underline">
             Connect
@@ -445,8 +445,8 @@ export default function Journal() {
           </div>
         </div>
 
-           {/* Trade Win Percentage  */}
-           <div className="border p-4 rounded-xl bg-white shadow w-full">
+        {/* Trade Win Percentage  */}
+        <div className="border p-4 rounded-xl bg-white shadow w-full">
           <div className="flex items-center gap-8">
             {/* Left  */}
             <div className="flex flex-col flex-1 justify-center">
@@ -492,21 +492,15 @@ export default function Journal() {
             </div>
           </div>
         </div>
-
-     
       </div>
-      <div className="flex flex-col md:flex-row gap-6 shadow-xl rounded-xl">
-        <div className="flex-2 bg-white rounded-xl py-10">
+      <div className="flex flex-col md:flex-row gap-6 rounded-xl">
+        <div className="flex-2 bg-white rounded-xl py-10 shadow-xl">
           <div className="flex w-full">
             <Recent />
           </div>
         </div>
-        <div className="flex-1 bg-white rounded-xl px-10 py-10">
-          
-            <Calendar
-              groupedTrades={groupedTrades}
-              tradesPerDay={tradesPerDay}
-            />
+        <div className="flex-1 bg-white rounded-xl px-10 py-10 shadow-xl">
+          <Calendar groupedTrades={groupedTrades} tradesPerDay={tradesPerDay} />
         </div>
       </div>
     </div>

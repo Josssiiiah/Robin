@@ -6,6 +6,8 @@ import { Link, useLoaderData } from "@remix-run/react";
 //ui
 import { Button } from "~/components/ui/button";
 import { getSession } from "~/sessions.server";
+//images
+import Dashboard from "~/images/dashboard.png";
 
 // -----------------------------------------------------------------------------
 // LOADER FUNCTION
@@ -31,7 +33,7 @@ export default function Index() {
 
   return (
     <div className="flex h-full w-full flex-col items-center ">
-      <div className="flex w-full max-w-[1440px] flex-row items-center justify-end pr-4 pt-2">
+      <div className="flex w-full max-w-[1440px] flex-row items-center justify-end pr-4 pt-6">
         {data.isUser ? (
           <Button>
             <Link to="/logout" className="cursor-pointer no-underline">
@@ -46,23 +48,30 @@ export default function Index() {
           </Button>
         )}
       </div>
-      <h1 className="pt-[250px] text-7xl ">
+      <h1 className="pt-[200px] text-8xl ">
         <strong>Next-Gen Trading Journal</strong>
       </h1>
-      <p className="flex items-center pt-6 text-center text-xl ">
+      <p className="flex items-center pt-6 text-center text-2xl ">
         TradeZellaAtHome helps you discover your strengths and weaknesses to
         become a <br />
         profitable trader with the power of journaling and analytics.{" "}
       </p>
       <div className="pt-10">
-        <Button className="flex">
+        <Button className="flex p-8 shadow-2xl">
           <Link
             to="/app/dashboard"
-            className="cursor-pointer py-[5px] text-center no-underline"
+            className="cursor-pointer py-[5px] text-xl text-center no-underline"
           >
             Start Journaling
           </Link>
         </Button>
+      </div>
+      <div className="flex items-center justify-center pt-36 rounded-xl">
+        <img
+          src={Dashboard}
+          alt="dashboard"
+          className="w-2/3 h-auto rounded-xl"
+        />
       </div>
     </div>
   );

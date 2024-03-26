@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState } from "react";
 // components
-import { Input } from '~/components/ui/input';
-import { Textarea } from '~/components/ui/textarea';
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
 
 interface TradePlan {
   tickers: string[];
@@ -9,8 +9,8 @@ interface TradePlan {
 }
 
 export default function NightBefore() {
-  const [tickers, setTickers] = useState<string[]>(['', '', '', '', '']);
-  const [notes, setNotes] = useState<string[]>(['', '', '', '', '']);
+  const [tickers, setTickers] = useState<string[]>(["", "", "", "", ""]);
+  const [notes, setNotes] = useState<string[]>(["", "", "", "", ""]);
   const [savedPlan, setSavedPlan] = useState<TradePlan | null>(null);
 
   const handleTickerChange = (index: number, value: string) => {
@@ -27,8 +27,8 @@ export default function NightBefore() {
 
   const handleSavePlan = () => {
     const plan: TradePlan = {
-      tickers: tickers.filter((ticker) => ticker !== ''),
-      notes: notes.filter((note) => note !== ''),
+      tickers: tickers.filter((ticker) => ticker !== ""),
+      notes: notes.filter((note) => note !== ""),
     };
     setSavedPlan(plan);
     // You can also save the plan to local storage or send it to a server
@@ -41,7 +41,9 @@ export default function NightBefore() {
       </div>
       <div className="flex flex-row gap-8 px-32 py-12">
         <div className="flex flex-1 flex-col items-center justify-center py-8 bg-white rounded-xl">
-          <h2 className="text-black mb-4 font-bold text-3xl py-4">Plan out your trades</h2>
+          <h2 className="text-black mb-4 font-bold text-3xl py-4">
+            Plan out your trades
+          </h2>
           {tickers.map((ticker, index) => (
             <div key={index} className="flex gap-4 mb-4">
               <Input
@@ -67,10 +69,12 @@ export default function NightBefore() {
           </button>
         </div>
         <div className="flex flex-1 flex-col items-center py-8 bg-white rounded-xl">
-          <h2 className="text-black mb-4 font-bold text-3xl py-4">Execute your trade plan</h2>
+          <h2 className="text-black mb-4 font-bold text-3xl py-4">
+            Execute your trade plan
+          </h2>
           {savedPlan ? (
             <>
-              <ul>
+              <ul className="gap-8">
                 {savedPlan.tickers.map((ticker, index) => (
                   <li key={index} className="mb-2">
                     <strong>{ticker}:</strong> {savedPlan.notes[index]}
