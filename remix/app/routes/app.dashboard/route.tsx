@@ -434,7 +434,7 @@ export default function Journal() {
           <div className="flex flex-col flex-1 justify-center">
             <h1>Profit Factor</h1>
             <div className="text-2xl font-bold">
-            <p>{profitFactor ? profitFactor.toFixed(2) : '0'}</p>
+              <p>{profitFactor ? profitFactor.toFixed(2) : "0"}</p>
             </div>
           </div>
           <div className="flex-1">

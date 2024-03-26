@@ -8,7 +8,7 @@ const ChartComponent = () => {
     if (chartRef.current) {
       const chart = createChart(chartRef.current, {
         width: 600,
-        height: 300,
+        height: 400,
         crosshair: {
           mode: CrosshairMode.Normal,
         },
