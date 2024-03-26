@@ -9,6 +9,13 @@ import { getSession } from "~/sessions.server";
 //images
 import Dashboard from "~/images/dashboard.png";
 
+//components
+import ChartComponent from "./chartComponent";
+
+//icons
+import { FaceIcon } from "@radix-ui/react-icons";
+import { FaThinkPeaks, FaUndo } from "react-icons/fa";
+
 // -----------------------------------------------------------------------------
 // LOADER FUNCTION
 // -----------------------------------------------------------------------------
@@ -32,8 +39,8 @@ export default function Index() {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex h-full w-full flex-col items-center ">
-      <div className="flex w-full max-w-[1440px] flex-row items-center justify-end pr-4 pt-6">
+    <div className="flex h-full w-full flex-col items-center max-w-[1440px] mx-auto">
+      <div className="flex w-full  flex-row items-center justify-end pr-4 pt-6">
         {data.isUser ? (
           <Button>
             <Link to="/logout" className="cursor-pointer no-underline">
@@ -70,9 +77,41 @@ export default function Index() {
         <img
           src={Dashboard}
           alt="dashboard"
-          className="w-2/3 h-auto rounded-xl"
+          className="w-3/4 h-auto rounded-xl"
         />
       </div>
+      <div className="flex justify-center flex-row gap-24 pt-36 px-12 w-full">
+        <div className="flex flex-col">
+          <h1 className="text-4xl font-bold">
+            Fine-tune your trading strategy
+          </h1>
+
+          <div className="flex flex-row pt-10 gap-4">
+            <FaUndo className="w-10 h-10" />
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xl font-bold"> Replay Trades </h2>
+              <p>
+                Synced with your trading data, you can replay your trades within
+                TradeZella to understand where you went right or wrong.
+              </p>
+            </div>
+         
+          </div>
+          <div className="flex flex-row pt-6 gap-4">
+
+          <FaThinkPeaks className="w-10 h-10" />
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xl font-bold"> Advanced Trade Tracking </h2>
+              <p>
+              Visually navigate through your entry and exit trading points, 
+              track your setups and mistakes, jot down notes for each trade, and more advanced tracking.
+              </p>
+            </div>
+            </div>
+        </div>
+        <ChartComponent />
+      </div>
+      <div className="flex flex-row pt-36 px-12"></div>
     </div>
   );
 }
