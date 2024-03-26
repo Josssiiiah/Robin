@@ -13,10 +13,11 @@ import Journal from "~/images/journal.png";
 //components
 import { Input } from "~/components/ui/input";
 import ChartComponent from "./chartComponent";
+import { Footer } from "./footer";
 
 //icons
 import { FaceIcon } from "@radix-ui/react-icons";
-import { FaThinkPeaks, FaUndo } from "react-icons/fa";
+import { FaThinkPeaks, FaUndo, FaBook, FaRegImages } from "react-icons/fa";
 
 // -----------------------------------------------------------------------------
 // LOADER FUNCTION
@@ -60,7 +61,7 @@ export default function Index() {
 
       <div className="flex flex-col gap-10 text-center min-h-screen pt-[150px]">
         <h1 className="text-7xl ">
-          <strong>The Ultimate Trading Companion</strong>
+          <strong>The Simple Trading Companion</strong>
         </h1>
         <p className="text-2xl ">
           Combine the power of journaling and analytics to unlock your full
@@ -103,9 +104,9 @@ export default function Index() {
 
           <div className="flex flex-row pt-10 gap-4">
             <div>
-                 <FaUndo className="w-8 h-8" />
+              <FaUndo className="w-8 h-8" />
             </div>
-         
+
             <div className="flex flex-col gap-1">
               <h2 className="text-2xl font-semibold"> Replay Trades </h2>
               <p className="text-xl">
@@ -116,11 +117,14 @@ export default function Index() {
           </div>
           <div className="flex flex-row pt-6 gap-4">
             <div>
-                  <FaThinkPeaks className="w-8 h-8" />
+              <FaThinkPeaks className="w-8 h-8" />
             </div>
- 
+
             <div className="flex flex-col gap-1">
-              <h2 className="text-2xl font-semibold"> Advanced Trade Tracking </h2>
+              <h2 className="text-2xl font-semibold">
+                {" "}
+                Advanced Trade Tracking{" "}
+              </h2>
               <p className="text-xl">
                 Visually navigate through your entry and exit trading points,
                 track your setups and mistakes, jot down notes for each trade,
@@ -131,19 +135,46 @@ export default function Index() {
         </div>
         <ChartComponent />
       </div>
-      <div className="flex justify-center flex-row gap-24 pt-36 pb-12 w-full">
-        <div>
-          <img
-            src={Journal}
-            alt="journal"
-            className="w-3/4 h-auto rounded-xl"
-          />
-        </div>
-        <div>
-        <h1 className="text-5xl font-bold">
-          Optimize your trading performance</h1>
+      <div className="flex flex-row pt-36 gap-12 pb-12 justify-between">
+        <img src={Journal} alt="journal" className="w-1/2 h-auto rounded-xl" />
+        <div className="flex flex-col">
+          <h1 className="text-4xl font-bold">
+            Optimize your trading performance
+          </h1>
+
+          <div className="flex flex-row pt-10 gap-4">
+            <div>
+              <FaBook className="w-8 h-8" />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <h2 className="text-2xl font-semibold"> Trading Journal </h2>
+              <p className="text-xl">
+                Journaling your trades shouldn't be a chore. With us, it's effortless. 
+                Sync your trades, and start understanding youreself better. 
+                
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-row pt-6 gap-4">
+            <div>
+              <FaRegImages className="w-8 h-8" />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <h2 className="text-2xl font-semibold">
+                Intelligent Reports
+              </h2>
+              <p className="text-xl">
+                What's your worst trading day? Which mistake is causing the most losses? 
+                Are you losing too much money on poor risk management? 
+                Access insightful reports that let you see deeper into the data.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
