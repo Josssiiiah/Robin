@@ -59,7 +59,7 @@ export default function Index() {
         <strong>Next-Gen Trading Journal</strong>
       </h1>
       <p className="flex items-center pt-6 text-center text-2xl ">
-        TradeZellaAtHome helps you discover your strengths and weaknesses to
+        Tradeplan helps you discover your strengths and weaknesses to
         become a <br />
         profitable trader with the power of journaling and analytics.{" "}
       </p>
@@ -77,10 +77,10 @@ export default function Index() {
         <img
           src={Dashboard}
           alt="dashboard"
-          className="w-3/4 h-auto rounded-xl"
+          className="w-7/8 h-auto rounded-xl"
         />
       </div>
-      <div className="flex justify-center flex-row gap-24 pt-36 px-12 w-full">
+      <div className="flex justify-center flex-row gap-24 pt-36  w-full">
         <div className="flex flex-col">
           <h1 className="text-4xl font-bold">
             Fine-tune your trading strategy
@@ -91,8 +91,7 @@ export default function Index() {
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-bold"> Replay Trades </h2>
               <p>
-                Synced with your trading data, you can replay your trades within
-                TradeZella to understand where you went right or wrong.
+                Synced with your trading data, you can replay your trades to understand where you went right or wrong.
               </p>
             </div>
          
