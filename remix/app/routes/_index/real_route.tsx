@@ -1,4 +1,4 @@
-// DEMO ROUTE TO BUILD MAILING LIST
+// REAL ROUTE
 
 // remix
 import { LoaderFunctionArgs } from "@remix-run/node";
@@ -10,7 +10,6 @@ import { getSession } from "~/sessions.server";
 import Dashboard from "~/images/dashboard.png";
 
 //components
-import { Input } from "~/components/ui/input";
 import ChartComponent from "./chartComponent";
 
 //icons
@@ -41,7 +40,7 @@ export default function Index() {
 
   return (
     <div className="flex h-full w-full flex-col items-center max-w-[1440px] mx-auto">
-      {/* <div className="flex w-full  flex-row items-center justify-end pr-4 pt-6">
+      <div className="flex w-full  flex-row items-center justify-end pr-4 pt-6">
         {data.isUser ? (
           <Button>
             <Link to="/logout" className="cursor-pointer no-underline">
@@ -55,43 +54,32 @@ export default function Index() {
             </Link>
           </Button>
         )}
-      </div> */}
-
-      <div className="flex flex-col gap-8 text-center min-h-screen pt-[275px]">
-        <h1 className="text-8xl ">
-          <strong>The Ultimate Trading Companion</strong>
-        </h1>
-        <p className="text-2xl ">
-          Combine the power of journaling and analytics to unlock your full potential. <br /> Track your progress, identify areas for improvement, and develop a winning trading mindset.
-        </p>
-        <div className="flex flex-row gap-8 px-72 pt-4">
-        <Input className="h-auto" type="email" placeholder="Email" />
-          <Button className="flex p-8 shadow-2xl">
-            <Link
-              to="/app/dashboard"
-              className="cursor-pointer py-[5px] text-xl text-center no-underline"
-            >
-              Join waitlist
-            </Link>
-          </Button>
-        </div>
-        <div className="flex items-center justify-center pt-10 rounded-xl">
-          <img
-            src={Dashboard}
-            alt="dashboard"
-            className="w-7/8 h-auto rounded-xl"
-          />
-        </div>
-        {/* <Button className="flex p-8 shadow-2xl">
+      </div>
+      <h1 className="pt-[200px] text-8xl ">
+        <strong>Next-Gen Trading Journal</strong>
+      </h1>
+      <p className="flex items-center pt-6 text-center text-2xl ">
+        Tradeplan helps you discover your strengths and weaknesses to become a{" "}
+        <br />
+        profitable trader with the power of journaling and analytics.{" "}
+      </p>
+      <div className="pt-10">
+        <Button className="flex p-8 shadow-2xl">
           <Link
             to="/app/dashboard"
             className="cursor-pointer py-[5px] text-xl text-center no-underline"
           >
             Start Journaling
           </Link>
-        </Button> */}
+        </Button>
       </div>
-
+      <div className="flex items-center justify-center pt-36 rounded-xl">
+        <img
+          src={Dashboard}
+          alt="dashboard"
+          className="w-7/8 h-auto rounded-xl"
+        />
+      </div>
       <div className="flex justify-center flex-row gap-24 pt-36  w-full">
         <div className="flex flex-col">
           <h1 className="text-4xl font-bold">

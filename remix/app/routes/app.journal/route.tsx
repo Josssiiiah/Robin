@@ -14,120 +14,30 @@ import { requireAuth } from "~/sessions.server";
 // LOADER FUNCTION
 // -----------------------------------------------------------------------------
 export async function loader({ request }: LoaderFunctionArgs) {
-  const supabase = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!
-  );
-
-  // protected route
-  const userid = await requireAuth(request);
-
-  // pull in auth token
-  try {
-    const { data, error } = await supabase
-      .from("rh_auth")
-      .select("auth_token")
-      .eq("user_id", userid)
-      .single();
-
-    if (error || !data) {
-      console.error("Error fetching auth token:", error);
-      return { userid, stats: null, error: "Connect to Broker" };
-    }
-
-    // make request for trades
-    var options = {
-      method: "GET",
-      url: "https://api.robinhood.com/options/orders/",
-      headers: {
-        Accept: "*/*",
-        Authorization: `Bearer ${data!.auth_token}`,
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "en-US,en;q=1",
-        "Content-Type": "application/x-www-form-urlencoded",
-        "X-Robinhood-API-Version": "1.315.0",
-        Connection: "keep-alive",
-        "User-Agent": "*",
-      },
-    };
-
-    function processOrders(data: any) {
-      const ret = [];
-
-      for (const key in data) {
-        if (data.hasOwnProperty(key)) {
-          const orders = data[key];
-          if (Array.isArray(orders)) {
-            // If the property value is an array, process it
-            for (const order of orders) {
-              if (order.state === "filled") {
-                for (const leg of order.legs) {
-                  const i = {
-                    symbol: order.chain_symbol,
-                    side: leg.side,
-                    order_created_at: order.created_at,
-                    price: order.price,
-                    processed_quantity: order.processed_quantity,
-                  };
-                  ret.push(i);
-                }
-              }
-            }
-          }
-        }
-      }
-      return ret;
-    }
-
-    const response2 = await axios(options);
-    const response = processOrders(response2.data);
-    const final = [];
-
-    // Filter by last 12 days
-    const now: any = new Date();
-    for (const item of response) {
-      const orderDate: any = new Date(item.order_created_at);
-      if (now - orderDate <= 30 * 24 * 60 * 60 * 1000) {
-        final.push(item);
-      }
-    }
-
-    // Perform calculations on the server-side
-    const groupedTrades: any = {};
-    for (const item of final) {
-      const date = item.order_created_at.split("T")[0]; // Extract date part
-      if (!groupedTrades[date]) {
-        groupedTrades[date] = { trades: [], totalBuy: 0, totalSell: 0 };
-      }
-      const amount =
-        parseFloat(item.price) * parseFloat(item.processed_quantity);
-      groupedTrades[date].trades.push(item);
-      if (item.side === "buy") {
-        groupedTrades[date].totalBuy += amount;
-      } else {
-        groupedTrades[date].totalSell += amount;
-      }
-    }
-
-    const stats = {
-      userId: userid,
-      groupedTrades,
-    };
-
-    // console.log("Response 2:", stats);
-    return { userid, stats, error: null };
-  } catch (error) {
-    console.error("Error in request 1:", error);
-    return { userid, stats: null, error: "Failed to fetch data" };
-  }
+  return null;
 }
 
 export default function route() {
   const data = {
-    value1: "Value 1",
-    value2: "Value 2",
-    value3: "Value 3",
-    value4: "Value 4",
+    "2024-03-11": {
+      pnl: 124.54,
+      totalTrades: 4,
+      winRate: 75,
+      winners: 3,
+      losers: 1,
+      grossPnl: 580.0,
+      dayRating: "B+",
+    },
+    "2024-03-12": {
+      pnl: -62.31,
+      totalTrades: 2,
+      winRate: 50,
+      winners: 1,
+      losers: 1,
+      grossPnl: 580.0,
+      dayRating: "C",
+    },
+    // Add more data entries as needed
   };
 
   return (
@@ -136,15 +46,48 @@ export default function route() {
         <h1 className="text-4xl text-black font-bold">Journal</h1>
       </div>
       <div className="flex flex-col items-center justify-center mt-8 gap-4 w-full px-[250px]">
-        {Object.entries(data).map(([key, value]) => (
-          <Card key={key} className="w-full px-4">
-            <CardHeader>
-              <CardTitle>{key}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>{value}</CardDescription>
-            </CardContent>
-          </Card>
+        {Object.entries(data).map(([date, values]) => (
+          <div key={date} className="w-full bg-white rounded-xl shadow-md">
+            <div className="flex items-center justify-between p-4 bg-gray-100 rounded-t-lg">
+              <h2 className="text-xl font-semibold">
+                {new Date(date).toLocaleDateString("en-US", {
+                  weekday: "short",
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </h2>
+              <p className={`text-lg font-semibold ${values.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                Net P&L: ${values.pnl.toFixed(2)}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4 p-4">
+              <div>
+                <p>Total trades</p>
+                <p className="text-lg font-semibold">{values.totalTrades}</p>
+              </div>
+              <div>
+                <p>Winrate</p>
+                <p className="text-lg font-semibold">{values.winRate}%</p>
+              </div>
+              <div>
+                <p>Winners</p>
+                <p className="text-lg font-semibold">{values.winners}</p>
+              </div>
+              <div>
+                <p>Losers</p>
+                <p className="text-lg font-semibold">{values.losers}</p>
+              </div>
+              <div>
+                <p>Self-Rating</p>
+                <p className="text-lg font-semibold">{values.dayRating}</p>
+              </div>
+              <div>
+                <p>Gross P&L</p>
+                <p className="text-lg font-semibold">${values.grossPnl.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>

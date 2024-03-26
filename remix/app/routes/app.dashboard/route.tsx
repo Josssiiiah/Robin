@@ -169,7 +169,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const now: any = new Date();
     for (const item of response) {
       const orderDate: any = new Date(item.order_created_at);
-      if (now - orderDate <= 8 * 24 * 60 * 60 * 1000) {
+      if (now - orderDate <= 12 * 24 * 60 * 60 * 1000) {
         final.push(item);
       }
     }
@@ -434,7 +434,7 @@ export default function Journal() {
           <div className="flex flex-col flex-1 justify-center">
             <h1>Profit Factor</h1>
             <div className="text-2xl font-bold">
-              <p>{profitFactor.toFixed(2)}</p>
+            <p>{profitFactor ? profitFactor.toFixed(2) : '0'}</p>
             </div>
           </div>
           <div className="flex-1">
