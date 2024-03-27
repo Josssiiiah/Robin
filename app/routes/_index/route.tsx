@@ -63,7 +63,7 @@ export default function Index() {
 
   return (
     <div className="flex h-full w-full flex-col items-center max-w-[1400px] mx-auto overflow-x-hidden">
-      <div className="flex flex-col gap-6 text-center min-h-screen pt-[100px] lg:pt-[150px]">
+      <div className="flex flex-col gap-6 text-center pb-[225px] pt-[100px] lg:pt-[150px]">
         <h1 className="text-4xl lg:text-7xl font-bold">
           The Simple Trading Companion
         </h1>
@@ -99,7 +99,7 @@ export default function Index() {
           />
         </div>
       </div>
-      <div className="flex flex-col px-12 pt-12 gap-16">
+      <div className="flex flex-col px-24 pt-12 gap-16">
         <div className="flex flex-col xl:flex-row justify-center gap-12 lg:gap-24 lg:pt-12 w-full px-4 lg:px-0">
           <div className="flex flex-col">
           <h1 className="text-center lg:text-left text-3xl lg:text-4xl font-bold">
@@ -138,7 +138,7 @@ export default function Index() {
             </div>
           </div>
           <div className="hidden md:flex items-center justify-center">
-            <ChartComponent width={600} height={400} />
+            <ChartComponent width={550} height={350} />
           </div>
           <div className="flex md:hidden items-center justify-center pl-8">
             <ChartComponent width={300} height={200} />
@@ -149,7 +149,7 @@ export default function Index() {
           <img
             src={Journal}
             alt="journal"
-            className="hidden xl:flex w-full lg:w-1/2 h-auto rounded-xl"
+            className="hidden xl:flex w-full lg:w-2/5 h-auto rounded-xl"
           />
           <div className="flex flex-col">
             <h1 className="text-center lg:text-left text-3xl lg:text-4xl font-bold">
