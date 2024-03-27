@@ -8,7 +8,6 @@ export default function route() {
     <div className="flex flex-col w-full h-screen mx-auto bg-gray-200">
       <LeftSidebar />
       <Outlet />
-      {/* <Footer /> */}
     </div>
   );
 }

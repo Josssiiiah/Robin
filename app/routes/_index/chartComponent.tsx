@@ -1,14 +1,19 @@
 import React, { useEffect, useRef } from "react";
 import { createChart, CrosshairMode } from "lightweight-charts";
 
-const ChartComponent = () => {
+interface ChartComponentProps {
+  width: number;
+  height: number;
+}
+
+const ChartComponent = ({ width, height }: ChartComponentProps) => {
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (chartRef.current) {
       const chart = createChart(chartRef.current, {
-        width: 600,
-        height: 400,
+        width,
+        height,
         crosshair: {
           mode: CrosshairMode.Normal,
         },
