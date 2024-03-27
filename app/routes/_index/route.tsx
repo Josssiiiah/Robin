@@ -99,7 +99,7 @@ export default function Index() {
           />
         </div>
       </div>
-      <div className="flex flex-col px-12 gap-16">
+      <div className="flex flex-col px-12 pt-12 gap-16">
         <div className="flex flex-col xl:flex-row justify-center gap-12 lg:gap-24 lg:pt-12 w-full px-4 lg:px-0">
           <div className="flex flex-col">
           <h1 className="text-center lg:text-left text-3xl lg:text-4xl font-bold">
