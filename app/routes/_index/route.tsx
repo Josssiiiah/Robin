@@ -2,7 +2,14 @@
 
 // remix
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import {
+  Link,
+  useLoaderData,
+  useFetcher,
+  Form,
+  useActionData,
+  useSubmit
+} from "@remix-run/react";
 //ui
 import { Button } from "~/components/ui/button";
 import { getSession } from "~/sessions.server";
@@ -14,32 +21,46 @@ import Journal from "~/images/journal.png";
 import { Input } from "~/components/ui/input";
 import ChartComponent from "./chartComponent";
 import { Footer } from "./footer";
+import { useToast } from "~/components/ui/use-toast";
 
 //icons
 import { FaceIcon } from "@radix-ui/react-icons";
 import { FaThinkPeaks, FaUndo, FaBook, FaRegImages } from "react-icons/fa";
-
-// -----------------------------------------------------------------------------
-// LOADER FUNCTION
-// -----------------------------------------------------------------------------
-export async function loader({ request }: LoaderFunctionArgs) {
-  // check if logged in
-  let isUser = false;
-  const session = await getSession(request.headers.get("Cookie"));
-  const userId = session.get("userId");
-
-  if (userId) {
-    isUser = true;
-  }
-
-  return { isUser };
-}
+import { createSupabaseServerClient } from "../supabase.server";
+import { useEffect } from "react";
 
 // -----------------------------------------------------------------------------
 // Index FUNCTION
 // -----------------------------------------------------------------------------
 export default function Index() {
-  const data = useLoaderData<typeof loader>();
+  const { toast } = useToast();
+  const submit = useSubmit();
+
+  const actionData = useActionData<typeof action>();
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (actionData?.error) {
+      toast({
+        title: "Login Failed",
+        description: actionData.error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Email added successfully",
+        variant: "default",
+      });
+    }
+  }, [actionData, toast]);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    submit(event.currentTarget, { method: "post" });
+    event.currentTarget.reset(); // Reset the form after submitting
+
+  };
 
   return (
     <div className="flex h-full w-full flex-col items-center max-w-[1400px] mx-auto">
@@ -67,18 +88,27 @@ export default function Index() {
           Combine the power of journaling and analytics to unlock your full
           potential. <br /> Track your progress, identify areas for improvement,
           and develop a winning trading mindset.
-        </p>
-        <div className="flex flex-row gap-8 px-96 pt-4">
-          <Input className="h-auto text-xl" type="email" placeholder="Email" />
-          <Button className="flex p-8 shadow-2xl">
-            <Link
-              to="/app/dashboard"
-              className="cursor-pointer py-[5px] text-xl text-center no-underline"
-            >
-              Join waitlist
-            </Link>
-          </Button>
+        </p>        <fetcher.Form onSubmit={handleSubmit}>
+        <div className="flex flex-row gap-8 px-80 pt-4">
+
+
+            <Input
+              className="h-auto text-xl"
+              type="email"
+              name="email"
+              placeholder="Email"
+              required
+            />
+
+            <Button type="submit" className="flex p-8 shadow-2xl">
+        
+                Join waitlist
+     
+            </Button>
+      
         </div>
+  </fetcher.Form>
+
         <div className="flex items-center justify-center pt-10 rounded-xl">
           <img
             src={Dashboard}
@@ -150,9 +180,9 @@ export default function Index() {
             <div className="flex flex-col gap-1">
               <h2 className="text-2xl font-semibold"> Trading Journal </h2>
               <p className="text-xl">
-                Journaling your trades shouldn't be a chore. With us, it's effortless. 
-                Sync your trades, and start understanding youreself better. 
-                
+                Journaling your trades shouldn't be a chore. With us, it's
+                effortless. Sync your trades, and start understanding youreself
+                better.
               </p>
             </div>
           </div>
@@ -162,12 +192,10 @@ export default function Index() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <h2 className="text-2xl font-semibold">
-                Intelligent Reports
-              </h2>
+              <h2 className="text-2xl font-semibold">Intelligent Reports</h2>
               <p className="text-xl">
-                What's your worst trading day? Which mistake is causing the most losses? 
-                Are you losing too much money on poor risk management? 
+                What's your worst trading day? Which mistake is causing the most
+                losses? Are you losing too much money on poor risk management?
                 Access insightful reports that let you see deeper into the data.
               </p>
             </div>
@@ -177,4 +205,33 @@ export default function Index() {
       <Footer />
     </div>
   );
+}
+// -----------------------------------------------------------------------------
+// ACTION FUNCTION
+// -----------------------------------------------------------------------------
+export async function action({ request }: any) {
+  const supabase = await createSupabaseServerClient({ request });
+
+  // handle form data
+  const formData = await request.formData();
+  const { email } = Object.fromEntries(formData.entries());
+  console.log("EMAIL HERE FOLKS: ", email)
+
+  // call supabase sign up function, adds user to database
+  const { data, error } = await supabase.from("waiting_list").insert({
+    email: email as string,
+    created_at: new Date(),
+  });
+
+  // if error when signing up
+  if (error) {
+    console.log(error);
+    return { error: error.message };
+  }
+
+  // if user created successfully
+  else {
+    console.log("Email added successfully", data);
+    return null;
+  }
 }
