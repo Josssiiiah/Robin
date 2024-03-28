@@ -151,7 +151,7 @@ export default function Index() {
             alt="journal"
             className="hidden xl:flex w-full lg:w-2/5 h-auto rounded-xl"
           />
-          <div className="flex flex-col">
+          <div className="flex flex-col pl-24">
             <h1 className="text-center lg:text-left text-3xl lg:text-4xl font-bold">
               Optimize your trading performance
             </h1>
