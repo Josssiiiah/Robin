@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Textarea } from '~/components/ui/textarea';
-import { Input } from '~/components/ui/input';
+import React, { useState, useEffect } from 'react';
 import { Button } from '~/components/ui/button';
 import { useSubmit } from '@remix-run/react';
+import { Editor } from "novel";
+import { Input } from '~/components/ui/input';
+import { FaTrash } from 'react-icons/fa';
 
 interface Note {
   id: number;
@@ -13,37 +14,64 @@ interface Note {
 
 export default function Journal() {
   const [notes, setNotes] = useState<Note[]>([]);
-  const [currentNote, setCurrentNote] = useState('');
-  const [currentTitle, setCurrentTitle] = useState('');
-  const submit = useSubmit();
+  const [currentNote, setCurrentNote] = useState<Note | null>(null);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState<string>('');
+
+  useEffect(() => {
+    const storedNotes = localStorage.getItem('notes');
+    if (storedNotes) {
+      setNotes(JSON.parse(storedNotes));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('notes', JSON.stringify(notes));
+  }, [notes]);
 
   const handleSave = () => {
-    if (currentNote.trim() !== '') {
+    if (title.trim() !== '' && content.trim() !== '') {
       const newNote: Note = {
         id: Date.now(),
-        title: currentTitle.trim() !== '' ? currentTitle : 'Untitled',
-        content: currentNote,
+        title: title.trim(),
+        content: content,
         timestamp: new Date().toLocaleString(),
       };
       setNotes([...notes, newNote]);
-      setCurrentNote('');
-      setCurrentTitle('');
+      setCurrentNote(newNote);
+      setTitle('');
+      setContent('');
+    }
+  };
+
+  const handleNoteClick = (note: Note) => {
+    setCurrentNote(note);
+    setTitle(note.title);
+    setContent(note.content);
+  };
+
+  const handleDeleteNote = () => {
+    if (currentNote) {
+      const updatedNotes = notes.filter((note) => note.id !== currentNote.id);
+      setNotes(updatedNotes);
+      setCurrentNote(null);
+      setTitle('');
+      setContent('');
     }
   };
 
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       <div className="w-1/4 p-4 bg-gray-100">
-        <h2 className="text-xl font-bold mb-4">Notes</h2>
+        <h2 className="text-xl font-bold mb-4 text-center">Notes</h2>
         <ul className="divide-y divide-gray-300">
           {notes.map((note) => (
             <li
               key={note.id}
-              className="cursor-pointer p-2 hover:bg-gray-200"
-              onClick={() => {
-                setCurrentNote(note.content);
-                setCurrentTitle(note.title);
-              }}
+              className={`cursor-pointer p-2 hover:bg-gray-200 ${
+                currentNote?.id === note.id ? 'bg-gray-200' : ''
+              }`}
+              onClick={() => handleNoteClick(note)}
             >
               <div className="font-bold">{note.title}</div>
               <div className="text-xs text-gray-500">{note.timestamp}</div>
@@ -55,17 +83,30 @@ export default function Journal() {
         <Input
           type="text"
           placeholder="Title"
-          value={currentTitle}
-          onChange={(e) => setCurrentTitle(e.target.value)}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           className="w-full mb-4"
         />
-        <Textarea
-          placeholder="Write your note here..."
-          value={currentNote}
-          onChange={(e) => setCurrentNote(e.target.value)}
-          className="w-full h-80 mb-4"
+        <Editor
+          disableLocalStorage={true}
+          defaultValue={{ "type": "doc", "content": [] }}
+          onDebouncedUpdate={(editor?: any) => {
+            setContent(editor?.getHTML());
+          }}
         />
-        <Button onClick={handleSave}>Save Note</Button>
+        <div className="mt-4 flex justify-between">
+          <Button onClick={handleSave}>Save Note</Button>
+          {currentNote && (
+            <Button
+              onClick={handleDeleteNote}
+              variant="destructive"
+              className="ml-4"
+            >
+              <FaTrash className="mr-2" />
+              Delete Note
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
