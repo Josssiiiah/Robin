@@ -28,6 +28,7 @@ import { FaceIcon } from "@radix-ui/react-icons";
 import { FaThinkPeaks, FaUndo, FaBook, FaRegImages } from "react-icons/fa";
 import { createSupabaseServerClient } from "../supabase.server";
 import { useEffect } from "react";
+import { addToWaitList } from "drizzle/model";
 
 // -----------------------------------------------------------------------------
 // Index FUNCTION
@@ -40,19 +41,23 @@ export default function Index() {
   const fetcher = useFetcher();
 
   useEffect(() => {
-    if (actionData?.error) {
-      toast({
-        title: "Login Failed",
-        description: actionData.error,
-        variant: "destructive",
-      });
-    } else {
+    if (!actionData) return;
+
+    if (actionData.ok) {
       toast({
         title: "Success",
         description: "Email added successfully",
         variant: "default",
       });
+
+      return;
     }
+
+    toast({
+      title: "Login Failed",
+      description: actionData.error,
+      variant: "destructive",
+    });
   }, [actionData, toast]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -203,28 +208,18 @@ export default function Index() {
 // ACTION FUNCTION
 // -----------------------------------------------------------------------------
 export async function action({ request }: any) {
-  const supabase = await createSupabaseServerClient({ request });
-
-  // handle form data
   const formData = await request.formData();
+
   const { email } = Object.fromEntries(formData.entries());
-  console.log("EMAIL HERE FOLKS: ", email);
 
-  // call supabase sign up function, adds user to database
-  const { data, error } = await supabase.from("waiting_list").insert({
-    email: email as string,
-    created_at: new Date(),
-  });
-
-  // if error when signing up
-  if (error) {
-    console.log(error);
-    return { error: error.message };
+  if (!email || typeof email != 'string') {
+    return {
+      ok: false,
+      error: "email is null or not of type string"
+    }
   }
 
-  // if user created successfully
-  else {
-    console.log("Email added successfully", data);
-    return null;
-  }
+  addToWaitList(email)
+
+  return { ok: true};
 }
