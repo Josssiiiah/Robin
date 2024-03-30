@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '~/components/ui/button';
-import { useSubmit } from '@remix-run/react';
+import React, { useState, useEffect } from "react";
+import { Button } from "~/components/ui/button";
+import { useSubmit } from "@remix-run/react";
 import { Editor } from "novel";
-import { Input } from '~/components/ui/input';
-import { FaTrash } from 'react-icons/fa';
+import { Input } from "~/components/ui/input";
+import { FaTrash } from "react-icons/fa";
 
 interface Note {
   id: number;
@@ -15,22 +15,22 @@ interface Note {
 export default function Journal() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [currentNote, setCurrentNote] = useState<Note | null>(null);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState<string>('');
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState<string>("");
 
   useEffect(() => {
-    const storedNotes = localStorage.getItem('notes');
+    const storedNotes = localStorage.getItem("notes");
     if (storedNotes) {
       setNotes(JSON.parse(storedNotes));
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('notes', JSON.stringify(notes));
+    localStorage.setItem("notes", JSON.stringify(notes));
   }, [notes]);
 
   const handleSave = () => {
-    if (title.trim() !== '' && content.trim() !== '') {
+    if (title.trim() !== "" && content.trim() !== "") {
       const newNote: Note = {
         id: Date.now(),
         title: title.trim(),
@@ -39,8 +39,8 @@ export default function Journal() {
       };
       setNotes([...notes, newNote]);
       setCurrentNote(newNote);
-      setTitle('');
-      setContent('');
+      setTitle("");
+      setContent("");
     }
   };
 
@@ -55,8 +55,8 @@ export default function Journal() {
       const updatedNotes = notes.filter((note) => note.id !== currentNote.id);
       setNotes(updatedNotes);
       setCurrentNote(null);
-      setTitle('');
-      setContent('');
+      setTitle("");
+      setContent("");
     }
   };
 
@@ -69,7 +69,7 @@ export default function Journal() {
             <li
               key={note.id}
               className={`cursor-pointer p-2 hover:bg-gray-200 ${
-                currentNote?.id === note.id ? 'bg-gray-200' : ''
+                currentNote?.id === note.id ? "bg-gray-200" : ""
               }`}
               onClick={() => handleNoteClick(note)}
             >
@@ -89,7 +89,7 @@ export default function Journal() {
         />
         <Editor
           disableLocalStorage={true}
-          defaultValue={{ "type": "doc", "content": [] }}
+          defaultValue={{ type: "doc", content: [] }}
           onDebouncedUpdate={(editor?: any) => {
             setContent(editor?.getHTML());
           }}
