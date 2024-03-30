@@ -1,181 +1,112 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { ArcElement, Tooltip, Legend, DoughnutController } from "chart.js";
-import Chart from "chart.js/auto";
+import React, { useState, useEffect } from 'react';
+import { Button } from '~/components/ui/button';
+import { useSubmit } from '@remix-run/react';
+import { Editor } from "novel";
+import { Input } from '~/components/ui/input';
+import { FaTrash } from 'react-icons/fa';
 
-import { useEffect, useRef } from "react";
-import { Button } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
-
-Chart.register(ArcElement, Tooltip, Legend);
-
-// -----------------------------------------------------------------------------
-// LOADER FUNCTION
-// -----------------------------------------------------------------------------
-export async function loader({ request }: LoaderFunctionArgs) {
-  return null;
+interface Note {
+  id: number;
+  title: string;
+  content: string;
+  timestamp: string;
 }
 
-// Create a separate component for the chart
-const LineChart = () => {
-  const chartRef = useRef<HTMLCanvasElement | null>(null);
+export default function Journal() {
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [currentNote, setCurrentNote] = useState<Note | null>(null);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState<string>('');
 
   useEffect(() => {
-    if (chartRef.current) {
-      const ctx = chartRef.current.getContext("2d");
-      if (ctx) {
-        new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: ["8", "9", "10", "11", "12", "1", "2"], // lol
-            datasets: [
-              {
-                label: "Profit",
-                data: [65, 59, 80, 81, 56, 55, 40],
-                fill: true,
-                borderColor: "rgb(0,0,0)",
-                tension: 0.1,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true,
-              },
-            },
-            plugins: {
-              tooltip: {
-                enabled: true,
-              },
-              legend: {
-                display: false,
-              },
-            },
-          },
-        });
-      }
+    const storedNotes = localStorage.getItem('notes');
+    if (storedNotes) {
+      setNotes(JSON.parse(storedNotes));
     }
   }, []);
 
-  return (
-    <canvas ref={chartRef} style={{ width: "100%", height: "200px" }}></canvas>
-  );
-};
+  useEffect(() => {
+    localStorage.setItem('notes', JSON.stringify(notes));
+  }, [notes]);
 
-export default function route() {
-  const data = {
-    "2024-03-11": {
-      pnl: 124.54,
-      totalTrades: 4,
-      winRate: 75,
-      winners: 3,
-      losers: 1,
-      grossPnl: 5.0,
-      dayRating: "B+",
-    },
-    "2024-03-12": {
-      pnl: -62.31,
-      totalTrades: 2,
-      winRate: 50,
-      winners: 1,
-      losers: 1,
-      grossPnl: 5.0,
-      dayRating: "C",
-    },
-    "2024-03-13": {
-      pnl: 224.72,
-      totalTrades: 2,
-      winRate: 50,
-      winners: 2,
-      losers: 1,
-      grossPnl: 5.0,
-      dayRating: "A-",
-    },
-    "2024-03-14": {
-      pnl: 22.31,
-      totalTrades: 2,
-      winRate: 50,
-      winners: 1,
-      losers: 3,
-      grossPnl: 5.0,
-      dayRating: "B+",
-    },
-    // Add more data entries as needed
+  const handleSave = () => {
+    if (title.trim() !== '' && content.trim() !== '') {
+      const newNote: Note = {
+        id: Date.now(),
+        title: title.trim(),
+        content: content,
+        timestamp: new Date().toLocaleString(),
+      };
+      setNotes([...notes, newNote]);
+      setCurrentNote(newNote);
+      setTitle('');
+      setContent('');
+    }
+  };
+
+  const handleNoteClick = (note: Note) => {
+    setCurrentNote(note);
+    setTitle(note.title);
+    setContent(note.content);
+  };
+
+  const handleDeleteNote = () => {
+    if (currentNote) {
+      const updatedNotes = notes.filter((note) => note.id !== currentNote.id);
+      setNotes(updatedNotes);
+      setCurrentNote(null);
+      setTitle('');
+      setContent('');
+    }
   };
 
   return (
-    <div className="flex flex-col items-center p-10 h-screen">
-      <div className="flex text-center items-center justify-center">
-        <h1 className="text-4xl text-black font-bold">Journal</h1>
+    <div className="flex h-screen">
+      <div className="w-1/4 p-4 bg-gray-100">
+        <h2 className="text-xl font-bold mb-4 text-center">Notes</h2>
+        <ul className="divide-y divide-gray-300">
+          {notes.map((note) => (
+            <li
+              key={note.id}
+              className={`cursor-pointer p-2 hover:bg-gray-200 ${
+                currentNote?.id === note.id ? 'bg-gray-200' : ''
+              }`}
+              onClick={() => handleNoteClick(note)}
+            >
+              <div className="font-bold">{note.title}</div>
+              <div className="text-xs text-gray-500">{note.timestamp}</div>
+            </li>
+          ))}
+        </ul>
       </div>
-      <div className="flex flex-col items-center justify-center mt-8 gap-4 w-full px-[250px]">
-        {Object.entries(data).map(([date, values]) => (
-          <div key={date} className="w-full bg-white rounded-xl shadow-md">
-            <div className="flex items-center p-4 bg-gray-100 rounded-t-lg">
-              <h2 className="text-xl font-bold">
-                {new Date(date).toLocaleDateString("en-US", {
-                  weekday: "short",
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </h2>
-              <p
-                className={`text-xl font-semibold pl-6 ${
-                  values.pnl >= 0 ? "text-green-500" : "text-red-500"
-                }`}
-              >
-                Net P&L: ${values.pnl.toFixed(2)}
-              </p>
-              <Button className="ml-auto">Open journal</Button>
-            </div>
-            <div>
-              {/* Chart */}
-              <div className="flex flex-row gap-12 py-6 px-6">
-                <div className="flex-2 pl-10">
-                  <LineChart />
-                </div>
-
-                <div className="flex-1 grid grid-cols-3 gap-4 px-6 pr-6">
-                  <div className="flex flex-col">
-                    <div className="flex flex-row justify-between pr-16">
-                      <p className="text-xl text-slate-600">Total trades</p>
-                      <p className="text-xl font-bold">{values.totalTrades}</p>
-                    </div>
-                    <div className="flex flex-row justify-between pr-16 pt-24">
-                      <p className="text-xl  text-slate-600">Winrate</p>
-                      <p className="text-xl font-bold">{values.winRate}%</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="flex flex-row justify-between pr-16">
-                      <p className="text-xl text-slate-600">Winners</p>
-                      <p className="text-xl font-bold">{values.winners}</p>
-                    </div>
-                    <div className="flex flex-row justify-between pr-16 pt-24">
-                      <p className="text-xl text-gray ">Losers</p>
-                      <p className="text-xl font-bold">{values.losers}</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="flex flex-row justify-between pr-16">
-                      <p className="text-xl text-slate-600">Self-Rating</p>
-                      <p className="text-xl font-bold">{values.dayRating}</p>
-                    </div>
-                    <div className="flex flex-row justify-between pr-16 pt-24">
-                      <p className="text-xl  text-slate-600">Commissions</p>
-                      <p className="text-xl font-bold">
-                        ${values.grossPnl.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="w-3/4 p-4">
+        <Input
+          type="text"
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full mb-4"
+        />
+        <Editor
+          disableLocalStorage={true}
+          defaultValue={{ "type": "doc", "content": [] }}
+          onDebouncedUpdate={(editor?: any) => {
+            setContent(editor?.getHTML());
+          }}
+        />
+        <div className="mt-4 flex justify-between">
+          <Button onClick={handleSave}>Save Note</Button>
+          {currentNote && (
+            <Button
+              onClick={handleDeleteNote}
+              variant="destructive"
+              className="ml-4"
+            >
+              <FaTrash className="mr-2" />
+              Delete Note
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

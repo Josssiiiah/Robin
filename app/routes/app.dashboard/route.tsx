@@ -402,7 +402,7 @@ export default function Journal() {
         </Button>
         <h1 className="text-4xl font-bold">Dashboard</h1>
         <Button>
-          <Link to="/connect" className="cursor-pointer no-underline">
+          <Link prefetch="intent" to="/connect" className="cursor-pointer no-underline">
             Connect
           </Link>
         </Button>
