@@ -28,7 +28,7 @@ import { FaceIcon } from "@radix-ui/react-icons";
 import { FaThinkPeaks, FaUndo, FaBook, FaRegImages } from "react-icons/fa";
 import { createSupabaseServerClient } from "../supabase.server";
 import { useEffect } from "react";
-import { addToWaitList } from "drizzle/model";
+import { addToWaitList } from "~/drizzle/model";
 
 // -----------------------------------------------------------------------------
 // Index FUNCTION
