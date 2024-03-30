@@ -115,7 +115,7 @@ export async function action({ request }: ActionFunctionArgs) {
     console.log("user", data.user);
     session.set("userId", data.user.id);
 
-    return redirect("/journal", {
+    return redirect("/app/journal", {
       headers: {
         "Set-Cookie": await commitSession(session),
       },
