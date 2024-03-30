@@ -28,7 +28,7 @@ import { FaceIcon } from "@radix-ui/react-icons";
 import { FaThinkPeaks, FaUndo, FaBook, FaRegImages } from "react-icons/fa";
 import { createSupabaseServerClient } from "../supabase.server";
 import { useEffect } from "react";
-import { addToWaitList } from "~/drizzle/model";
+import { addToWaitList } from "drizzle/model";
 
 // -----------------------------------------------------------------------------
 // Index FUNCTION
@@ -74,8 +74,8 @@ export default function Index() {
         </h1>
         <p className="hidden md:flex mx-auto text-center text-sm lg:text-2xl px-4 lg:px-0">
           Combine the power of journaling and analytics to unlock your full
-          potential. <br /> Track your progress, identify areas for improvement, and
-          develop a winning trading mindset.
+          potential. <br /> Track your progress, identify areas for improvement,
+          and develop a winning trading mindset.
         </p>
         <p className="md:hidden text-sm lg:text-2xl px-4 lg:px-0">
           Combine the power of journaling and analytics to unlock your full
@@ -107,7 +107,7 @@ export default function Index() {
       <div className="flex flex-col px-24 pt-12 gap-16">
         <div className="flex flex-col xl:flex-row justify-center gap-12 lg:gap-24 lg:pt-12 w-full px-4 lg:px-0">
           <div className="flex flex-col">
-          <h1 className="text-center lg:text-left text-3xl lg:text-4xl font-bold">
+            <h1 className="text-center lg:text-left text-3xl lg:text-4xl font-bold">
               Fine-tune your trading strategy
             </h1>
 
@@ -171,8 +171,8 @@ export default function Index() {
                   Trading Journal
                 </h2>
                 <p className="text-base lg:text-xl">
-                  Journaling your trades shouldn't be a chore. Automatically sync your trades, and start understanding yourself
-                  better.
+                  Journaling your trades shouldn't be a chore. Automatically
+                  sync your trades, and start understanding yourself better.
                 </p>
               </div>
             </div>
@@ -182,12 +182,12 @@ export default function Index() {
               </div>
 
               <div className="flex flex-col gap-1">
-              <h2 className="text-xl lg:text-2xl font-semibold">
+                <h2 className="text-xl lg:text-2xl font-semibold">
                   Intelligent Reports
                 </h2>
                 <p className="text-base lg:text-xl">
-                  Access insightful reports that let you see deeper
-                  into your data.
+                  Access insightful reports that let you see deeper into your
+                  data.
                 </p>
               </div>
             </div>
@@ -212,14 +212,14 @@ export async function action({ request }: any) {
 
   const { email } = Object.fromEntries(formData.entries());
 
-  if (!email || typeof email != 'string') {
+  if (!email || typeof email != "string") {
     return {
       ok: false,
-      error: "email is null or not of type string"
-    }
+      error: "email is null or not of type string",
+    };
   }
 
-  addToWaitList(email)
+  addToWaitList(email);
 
-  return { ok: true};
+  return { ok: true };
 }
