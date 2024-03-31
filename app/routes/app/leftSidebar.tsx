@@ -13,7 +13,7 @@ export function LeftSidebar() {
   return (
     <>
       {isLeftSidebarOpen && (
-        <div className="fixed left-0 top-0 bottom-0 z-10 w-64 bg-black p-4">
+        <div className="fixed left-0 top-0 bottom-0 z-10 w-48 bg-black p-4">
           <nav>
             <ul className="space-y-2">
               <li>
@@ -42,14 +42,14 @@ export function LeftSidebar() {
               </li>
               <li>
                 <NavLink
-                  to="/app/nightBefore"
+                  to="/app/tradelog"
                   className={({ isActive }) =>
                     `block px-4 py-2 text-white hover:bg-gray-500 ${
                       isActive ? "bg-gray-500" : ""
                     }`
                   }
                 >
-                  Night Before
+                  Trade Log
                 </NavLink>
               </li>
             </ul>
@@ -58,7 +58,7 @@ export function LeftSidebar() {
       )}
       <div
         className={`${
-          isLeftSidebarOpen ? "left-[250px]" : "left-[10px]"
+          isLeftSidebarOpen ? "left-[200px]" : "left-[10px]"
         } fixed top-1/2 z-40 flex h-20 w-8 cursor-pointer items-center justify-center rounded-lg`}
         onClick={toggleLeftSidebar}
       >
