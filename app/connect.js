@@ -10,6 +10,7 @@ function processFullTrades(data) {
       if (Array.isArray(orders)) {
         for (const order of orders) {
           if (order.state === "filled") {
+            console.log("ORDER ORDER: ", order);
             for (const leg of order.legs) {
               const legId = leg.option;
               const quantity = parseFloat(order.processed_quantity);
@@ -30,6 +31,9 @@ function processFullTrades(data) {
                   const trade = {
                     symbol: order.chain_symbol,
                     openingOrder: openPosition.order.created_at,
+                    optionType: leg.option_type,
+                    expirationDate: leg.expiration_date,
+                    strikePrice: leg.strike_price,
                     // closingOrder: order,
                     quantity: openQuantity,
                     openPrice,

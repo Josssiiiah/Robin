@@ -7,6 +7,9 @@ interface Trade {
   openPrice: number;
   closePrice: number;
   pnl: number;
+  expirationDate: string;
+  strikePrice: string;
+  optionType: string; // call or put
   closeDate: string;
 }
 
@@ -63,20 +66,11 @@ const TradeNavigator: React.FC<{ trades: Trade[] }> = ({ trades }) => {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center p-24">
-        <div className="flex flex-row p-6 bg-gray-500 w-full h-full rounded-xl ">
-            <div className="w-1/4 h-full border border-red-500">
-
-            </div>
-            <div className="w-3/4 h-full border border-orange-500">
-
-            </div>
-
-        </div>
-
-      {/* <div className="flex w-full bg-white p-6 border border-red-500">
-        <div className="w-1/4 bg-gray-200 p-4 p">
-          <h2 className="text-2xl font-bold mb-4">Trades</h2>
+    <div className="flex flex-col h-screen items-center justify-center p-24 px-[250px] bg-gray-200">
+      <h1 className="pb-12 text-5xl font-bold">Trade Recap</h1>
+      <div className="flex flex-row p-3 bg-white w-full h-full rounded-xl ">
+        <div className="w-1/4 text-center bg-gray-300 rounded-lg h-full  ">
+          <h2 className="text-2xl font-bold mb-4 pt-2">Trades</h2>
           <ul>
             {trades.map((trade, index) => (
               <li
@@ -86,19 +80,25 @@ const TradeNavigator: React.FC<{ trades: Trade[] }> = ({ trades }) => {
                 }`}
                 onClick={() => handleTradeClick(index)}
               >
-                {trade.symbol}
+                {trade.symbol} $
+                {Math.floor(Number(trade.strikePrice) * 100) / 100}
+                {/* strike price */} {trade.optionType} {/* side */}{" "}
+                {new Date(trade.expirationDate).toLocaleDateString("en-US", {
+                  month: "2-digit",
+                  day: "2-digit",
+                })}
               </li>
             ))}
           </ul>
         </div>
-        <div className="w-3/4 p-8 flex flex-col items-center">
+        <div className="w-3/4 h-full rounded-lg ">
           {selectedTradeIndex !== null && (
             <>
               <TradeCard
                 trade={trades[selectedTradeIndex]}
                 questionIndex={questionIndex}
               />
-              <div className="mt-4">
+              <div className="flex justify-between mt-4 px-24">
                 <button
                   className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
                   onClick={handlePrevQuestion}
@@ -115,7 +115,7 @@ const TradeNavigator: React.FC<{ trades: Trade[] }> = ({ trades }) => {
             </>
           )}
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };
@@ -123,31 +123,40 @@ const TradeNavigator: React.FC<{ trades: Trade[] }> = ({ trades }) => {
 export default function Route() {
   const trades: Trade[] = [
     {
-      symbol: "QQQ",
-      openingOrder: "2024-03-20T14:17:28.355936Z",
+      symbol: "TSLA",
+      openingOrder: "2024-03-13T13:44:22.087770Z",
+      optionType: "call",
+      expirationDate: "2024-03-15",
+      strikePrice: "180.0000",
       quantity: 1,
-      openPrice: 1.69,
-      closePrice: 2.16,
-      pnl: 47.00000000000002,
-      closeDate: "2024-03-19T19:45:27.161060Z",
+      openPrice: 0.94,
+      closePrice: 0.9,
+      pnl: -3.9999999999999925,
+      closeDate: "2024-03-13T13:43:29.582177Z",
+    },
+    {
+      symbol: "QQQ",
+      openingOrder: "2024-03-12T15:42:57.352212Z",
+      optionType: "put",
+      expirationDate: "2024-03-13",
+      strikePrice: "441.0000",
+      quantity: 1,
+      openPrice: 1.6,
+      closePrice: 1.4,
+      pnl: -20.000000000000018,
+      closeDate: "2024-03-12T15:16:19.443119Z",
     },
     {
       symbol: "SPY",
-      openingOrder: "2024-03-15T17:45:28.258538Z",
-      quantity: 2,
-      openPrice: 0.6,
-      closePrice: 0.68,
-      pnl: 16.000000000000014,
-      closeDate: "2024-03-15T17:44:26.097212Z",
-    },
-    {
-      symbol: "TSLA",
-      openingOrder: "2024-03-14T14:40:01.065771Z",
-      quantity: 2,
-      openPrice: 0.86,
-      closePrice: 0.6,
-      pnl: -52,
-      closeDate: "2024-03-14T13:58:53.925553Z",
+      openingOrder: "2024-03-11T17:15:26.116132Z",
+      optionType: "call",
+      expirationDate: "2024-03-11",
+      strikePrice: "438.0000",
+      quantity: 1,
+      openPrice: 0.47,
+      closePrice: 0.82,
+      pnl: 35,
+      closeDate: "2024-03-11T16:53:34.165093Z",
     },
   ];
 
