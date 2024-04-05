@@ -1,164 +1,199 @@
 import React, { useState } from "react";
-
-interface Trade {
-  symbol: string;
-  openingOrder: string;
-  quantity: number;
-  openPrice: number;
-  closePrice: number;
-  pnl: number;
-  expirationDate: string;
-  strikePrice: string;
-  optionType: string; // call or put
-  closeDate: string;
-}
+import { Textarea } from "~/components/ui/textarea";
+import { Chart } from "./chartComponent";
 
 interface Question {
   id: number;
   text: string;
+  info: string;
+  chartData: { time: string; value: number }[];
+  ticker: string;
+  entryPrice: number;
+  exitPrice: number;
+  tradeType: string;
+  profit: number;
 }
 
 const questions: Question[] = [
-  { id: 1, text: "What was your reasoning behind this trade?" },
-  { id: 2, text: "What did you learn from this trade?" },
-  { id: 3, text: "How would you improve your approach next time?" },
+  {
+    id: 1,
+    text: "What was your strategy for this trade?",
+    info: "Consider your entry and exit points, risk management, and overall plan.",
+    chartData: [
+      { time: "2018-12-22", value: 32.51 },
+      { time: "2018-12-23", value: 31.11 },
+      { time: "2018-12-24", value: 27.02 },
+      { time: "2018-12-25", value: 27.32 },
+      { time: "2018-12-26", value: 25.17 },
+    ],
+    ticker: "AAPL",
+    entryPrice: 150.23,
+    exitPrice: 155.67,
+    tradeType: "Long",
+    profit: 543.21,
+  },
+  {
+    id: 2,
+    text: "How were you feeling emotionally during this trade?",
+    info: "Reflect on the aspects of your strategy that proved effective.",
+    chartData: [
+      { time: "2018-12-27", value: 28.89 },
+      { time: "2018-12-28", value: 25.46 },
+      { time: "2018-12-29", value: 23.92 },
+      { time: "2018-12-30", value: 22.68 },
+      { time: "2018-12-31", value: 22.67 },
+    ],
+    ticker: "TSLA",
+    entryPrice: 750.0,
+    exitPrice: 800.5,
+    tradeType: "Short",
+    profit: -1250.75,
+  },
+  {
+    id: 3,
+    text: "What could you have done better in this trade?",
+    info: "Identify areas for improvement and potential adjustments for future trades.",
+    chartData: [
+      { time: "2019-01-01", value: 24.51 },
+      { time: "2019-01-02", value: 26.33 },
+      { time: "2019-01-03", value: 28.74 },
+      { time: "2019-01-04", value: 27.56 },
+      { time: "2019-01-05", value: 29.82 },
+    ],
+    ticker: "AMZN",
+    entryPrice: 3200.0,
+    exitPrice: 3250.25,
+    tradeType: "Long",
+    profit: 1005.5,
+  },
+  // Add more questions as needed
 ];
 
-const TradeCard: React.FC<{ trade: Trade; questionIndex: number }> = ({
-  trade,
-  questionIndex,
-}) => {
-  const [answer, setAnswer] = useState("");
+export default function TradeRecap() {
+  const [started, setStarted] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<{ [key: number]: string }>({});
+  const [currentAnswer, setCurrentAnswer] = useState("");
 
-  return (
-    <div className="bg-white p-8 rounded shadow-lg w-full">
-      <h2 className="text-2xl font-bold mb-4">{trade.symbol}</h2>
-      <p className="text-lg mb-4">{questions[questionIndex].text}</p>
-      <textarea
-        placeholder="Enter your answer"
-        value={answer}
-        onChange={(e) => setAnswer(e.target.value)}
-        className="border border-gray-300 px-4 py-2 mt-4 w-full h-32 resize-none"
-      />
-    </div>
-  );
-};
-
-const TradeNavigator: React.FC<{ trades: Trade[] }> = ({ trades }) => {
-  const [selectedTradeIndex, setSelectedTradeIndex] = useState<number | null>(
-    null
-  );
-  const [questionIndex, setQuestionIndex] = useState(0);
-
-  const handleTradeClick = (index: number) => {
-    setSelectedTradeIndex(index);
-    setQuestionIndex(0);
+  const handleStartRecap = () => {
+    setStarted(true);
   };
 
-  const handlePrevQuestion = () => {
-    setQuestionIndex((prevIndex) =>
-      prevIndex === 0 ? questions.length - 1 : prevIndex - 1
-    );
-  };
-
-  const handleNextQuestion = () => {
-    setQuestionIndex((prevIndex) => (prevIndex + 1) % questions.length);
+  const handleSubmitAnswer = () => {
+    setAnswers((prevAnswers) => ({
+      ...prevAnswers,
+      [questions[currentQuestionIndex].id]: currentAnswer,
+    }));
+    setCurrentAnswer("");
+    setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
   };
 
   return (
-    <div className="flex flex-col h-screen items-center justify-center p-24 px-[250px] bg-gray-200">
-      <h1 className="pb-12 text-5xl font-bold">Trade Recap</h1>
-      <div className="flex flex-row p-3 bg-white w-full h-full rounded-xl ">
-        <div className="w-1/4 text-center bg-gray-300 rounded-lg h-full  ">
-          <h2 className="text-2xl font-bold mb-4 pt-2">Trades</h2>
-          <ul>
-            {trades.map((trade, index) => (
-              <li
-                key={index}
-                className={`cursor-pointer mb-2 ${
-                  index === selectedTradeIndex ? "font-bold" : ""
-                }`}
-                onClick={() => handleTradeClick(index)}
-              >
-                {trade.symbol} $
-                {Math.floor(Number(trade.strikePrice) * 100) / 100}
-                {/* strike price */} {trade.optionType} {/* side */}{" "}
-                {new Date(trade.expirationDate).toLocaleDateString("en-US", {
-                  month: "2-digit",
-                  day: "2-digit",
-                })}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="w-3/4 h-full rounded-lg ">
-          {selectedTradeIndex !== null && (
-            <>
-              <TradeCard
-                trade={trades[selectedTradeIndex]}
-                questionIndex={questionIndex}
+    <div className="flex flex-col gap-12 min-h-screen items-center p-10 bg-gray-100 ">
+      <h1 className="font-bold text-4xl">Recap</h1>
+      <div className="max-w-6xl w-full bg-white rounded-lg shadow-lg p-8">
+        {!started ? (
+          <div className="flex items-center justify-center h-80">
+            <button
+              className="bg-black text-white px-6 py-3 rounded-md text-xl font-semibold hover:bg-gray-600 transition duration-200"
+              onClick={handleStartRecap}
+            >
+              Start Recap
+            </button>
+          </div>
+        ) : currentQuestionIndex < questions.length ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left side */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">
+                Question {currentQuestionIndex + 1} of {questions.length}
+              </h2>
+              <h3 className="text-xl font-semibold mb-2">
+                {questions[currentQuestionIndex].text}
+              </h3>
+              <Textarea
+                className="w-full h-60 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-4"
+                value={currentAnswer}
+                onChange={(e) => setCurrentAnswer(e.target.value)}
               />
-              <div className="flex justify-between mt-4 px-24">
-                <button
-                  className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
-                  onClick={handlePrevQuestion}
-                >
-                  Prev
-                </button>
-                <button
-                  className="bg-blue-500 text-white px-3 py-1 rounded"
-                  onClick={handleNextQuestion}
-                >
-                  Next
-                </button>
+              <button
+                className="bg-black text-white px-6 py-2 rounded-md font-semibold hover:bg-gray-600 transition duration-200"
+                onClick={handleSubmitAnswer}
+              >
+                Submit
+              </button>
+              {/* Progress indicator */}
+              {started && currentQuestionIndex < questions.length && (
+                <div className="mt-8 flex items-center justify-center space-x-2">
+                  {questions.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`w-4 h-4 rounded-full ${
+                        index === currentQuestionIndex
+                          ? "bg-blue-500"
+                          : "bg-gray-300"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Right side */}
+            <div>
+              <h3 className="text-2xl font-bold mb-4">
+                {questions[currentQuestionIndex].ticker}
+              </h3>
+              <Chart data={questions[currentQuestionIndex].chartData} />
+              <div className="mt-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <h3 className="font-bold">Entry Price:</h3>
+                    <p>
+                      ${questions[currentQuestionIndex].entryPrice.toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold">Exit Price:</h3>
+                    <p>
+                      ${questions[currentQuestionIndex].exitPrice.toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold">Trade Type:</h3>
+                    <p>{questions[currentQuestionIndex].tradeType}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold">Profit/Loss:</h3>
+                    <p
+                      className={`${
+                        questions[currentQuestionIndex].profit >= 0
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      ${questions[currentQuestionIndex].profit.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-col h-full">
+            <h2 className="text-2xl font-bold mb-4 text-center">
+              Recap Completed!
+            </h2>
+            <div className="space-y-4">
+              {questions.map((question) => (
+                <div key={question.id}>
+                  <p className="font-semibold">{question.text}</p>
+                  <p>{answers[question.id]}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-export default function Route() {
-  const trades: Trade[] = [
-    {
-      symbol: "TSLA",
-      openingOrder: "2024-03-13T13:44:22.087770Z",
-      optionType: "call",
-      expirationDate: "2024-03-15",
-      strikePrice: "180.0000",
-      quantity: 1,
-      openPrice: 0.94,
-      closePrice: 0.9,
-      pnl: -3.9999999999999925,
-      closeDate: "2024-03-13T13:43:29.582177Z",
-    },
-    {
-      symbol: "QQQ",
-      openingOrder: "2024-03-12T15:42:57.352212Z",
-      optionType: "put",
-      expirationDate: "2024-03-13",
-      strikePrice: "441.0000",
-      quantity: 1,
-      openPrice: 1.6,
-      closePrice: 1.4,
-      pnl: -20.000000000000018,
-      closeDate: "2024-03-12T15:16:19.443119Z",
-    },
-    {
-      symbol: "SPY",
-      openingOrder: "2024-03-11T17:15:26.116132Z",
-      optionType: "call",
-      expirationDate: "2024-03-11",
-      strikePrice: "438.0000",
-      quantity: 1,
-      openPrice: 0.47,
-      closePrice: 0.82,
-      pnl: 35,
-      closeDate: "2024-03-11T16:53:34.165093Z",
-    },
-  ];
-
-  return <TradeNavigator trades={trades} />;
 }

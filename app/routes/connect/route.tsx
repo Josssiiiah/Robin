@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
-import { Link, useFetcher, useActionData } from "@remix-run/react";
+import { Link, useFetcher } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
 import axios from "axios";
@@ -14,10 +14,10 @@ export default function Connect() {
   const fetcher = useFetcher();
 
   return (
-    <div className="flex flex-col gap-8 p-10">
+    <div className="flex flex-col gap-8 p-10 pt-28">
       <div className="flex justify-start">
         <Button>
-          <Link to="/journal" className="cursor-pointer no-underline">
+          <Link to="/app/dashboard" className="cursor-pointer no-underline">
             Back
           </Link>
         </Button>

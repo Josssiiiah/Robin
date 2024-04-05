@@ -1,6 +1,8 @@
 import axios from "axios";
 
 function processFullTrades(data) {
+  console.log("DATA: ", data);
+
   const openPositions = {};
   const completedTrades = [];
 
@@ -10,7 +12,6 @@ function processFullTrades(data) {
       if (Array.isArray(orders)) {
         for (const order of orders) {
           if (order.state === "filled") {
-            console.log("ORDER ORDER: ", order);
             for (const leg of order.legs) {
               const legId = leg.option;
               const quantity = parseFloat(order.processed_quantity);

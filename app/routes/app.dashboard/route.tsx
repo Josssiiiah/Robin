@@ -1,7 +1,6 @@
 // JOURNAL ROUTE
 import { Link, useLoaderData } from "@remix-run/react";
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useQuery } from "@tanstack/react-query";
 // components
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
@@ -129,72 +128,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
       return completedTrades;
     }
 
-    function processOrders(data: any) {
-      const ret = [];
-
-      for (const key in data) {
-        if (data.hasOwnProperty(key)) {
-          const orders = data[key];
-          if (Array.isArray(orders)) {
-            // If the property value is an array, process it
-            for (const order of orders) {
-              if (order.state === "filled") {
-                for (const leg of order.legs) {
-                  const order_leg = leg;
-                  const i = {
-                    symbol: order.chain_symbol,
-                    side: leg.side,
-                    order_created_at: order.created_at,
-                    price: order.price,
-                    processed_quantity: order.processed_quantity,
-                  };
-                  ret.push(i);
-                  break;
-                }
-              }
-            }
-          }
-        }
-      }
-      return ret;
-    }
 
     const response2 = await axios(options);
-    const response = processOrders(response2.data);
     const fullTrades = processFullTrades(response2.data);
-    const final = [];
     const finalFullTrades = [];
 
     // Filter by last 12 days
     const now: any = new Date();
-    for (const item of response) {
-      const orderDate: any = new Date(item.order_created_at);
-      if (now - orderDate <= 12 * 24 * 60 * 60 * 1000) {
-        final.push(item);
-      }
-    }
-
     for (const fullTrade of fullTrades) {
       const date: any = new Date(fullTrade.closeDate);
       if (now - date <= 8 * 24 * 60 * 60 * 1000) {
         finalFullTrades.push(fullTrade);
-      }
-    }
-
-    // Grouped trades by date
-    const groupedTrades: any = {};
-    for (const item of final) {
-      const date = item.order_created_at.split("T")[0]; // Extract date part
-      if (!groupedTrades[date]) {
-        groupedTrades[date] = { trades: [], totalBuy: 0, totalSell: 0 };
-      }
-      const amount =
-        parseFloat(item.price) * parseFloat(item.processed_quantity);
-      groupedTrades[date].trades.push(item);
-      if (item.side === "buy") {
-        groupedTrades[date].totalBuy += amount;
-      } else {
-        groupedTrades[date].totalSell += amount;
       }
     }
 
@@ -210,36 +154,36 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
 
     // Total Pnl
-    const totalPnL = Object.values(groupedTrades).reduce(
+    const totalPnL = Object.values(groupedFullTrades).reduce(
       (sum: number, group: any) =>
         sum + (group.totalSell - group.totalBuy) * 100,
       0
     );
 
     // Consecutive positive days
-    const positivePnLDays = Object.values(groupedTrades).filter(
+    const positivePnLDays = Object.values(groupedFullTrades).filter(
       (group: any) => group.totalSell - group.totalBuy > 0
     ).length;
-    const averageWinLoss = totalPnL / Object.keys(groupedTrades).length;
+    const averageWinLoss = totalPnL / Object.keys(groupedFullTrades).length;
     const tradeWinPercentage = Math.round(
-      (positivePnLDays / Object.keys(groupedTrades).length) * 100
+      (positivePnLDays / Object.keys(groupedFullTrades).length) * 100
     );
 
     // Positive trades
-    const positiveTrades = Object.values(groupedTrades).filter(
+    const positiveTrades = Object.values(groupedFullTrades).filter(
       (group: any) => group.totalSell - group.totalBuy > 0
     ).length;
-    const breakEvenTrades = Object.values(groupedTrades).filter(
+    const breakEvenTrades = Object.values(groupedFullTrades).filter(
       (group: any) => group.totalSell - group.totalBuy === 0
     ).length;
-    const negativeTrades = Object.values(groupedTrades).filter(
+    const negativeTrades = Object.values(groupedFullTrades).filter(
       (group: any) => group.totalSell - group.totalBuy < 0
     ).length;
 
     let netProfit = 0;
     let netLoss = 0;
 
-    for (const group of Object.values(groupedTrades) as any[]) {
+    for (const group of Object.values(groupedFullTrades) as any[]) {
       for (const trade of group.trades) {
         const amount =
           parseFloat(trade.price) * parseFloat(trade.processed_quantity);
@@ -254,7 +198,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const profitFactor = netLoss !== 0 ? netProfit / netLoss : 0;
 
     const tradesPerDay: { [date: string]: number } = Object.entries(
-      groupedTrades
+      groupedFullTrades
     ).reduce((acc: { [date: string]: number }, [date, info]: [string, any]) => {
       acc[date] = info.trades.length;
       return acc;
@@ -266,7 +210,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       positivePnLDays,
       averageWinLoss: Math.round(averageWinLoss),
       tradeWinPercentage,
-      groupedTrades,
+      groupedFullTrades,
       positiveTrades,
       breakEvenTrades,
       negativeTrades,
@@ -275,9 +219,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     };
 
     // console.log("grouped full trades: ", groupedFullTrades);
-    // console.log("Grouped Trades: ", groupedTrades);
+    // console.log("Grouped Trades: ", groupedFullTrades);
 
-    // console.log("Specific grouped trade", groupedTrades["2024-03-21"]);
+    // console.log("Specific grouped trade", groupedFullTrades["2024-03-21"]);
     console.log("Specific grouped trade", groupedFullTrades["2024-03-21"]);
 
     // console.log("Response 2:", stats);
@@ -297,15 +241,15 @@ export default function Journal() {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const profitFactorChartRef = useRef<HTMLCanvasElement | null>(null);
 
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: "Error",
-        description: error,
-        variant: "destructive",
-      });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (error) {
+  //     toast({
+  //       title: "Error",
+  //       description: error,
+  //       variant: "destructive",
+  //     });
+  //   }
+  // }, []);
 
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   const {
@@ -313,7 +257,7 @@ export default function Journal() {
     positivePnLDays = 0,
     averageWinLoss = 0,
     tradeWinPercentage = 0,
-    groupedTrades = {},
+    groupedFullTrades = {},
     positiveTrades,
     breakEvenTrades,
     negativeTrades,
@@ -379,15 +323,15 @@ export default function Journal() {
     }
   }, [profitFactor]);
 
-  // Format the selected date to match the key format in groupedTrades
+  // Format the selected date to match the key format in groupedFullTrades
   const selectedDateStr =
     date instanceof Date ? date.toISOString().split("T")[0] : "";
 
   // Find the P&L for the selected date
-  const pnl = groupedTrades[selectedDateStr]
+  const pnl = groupedFullTrades[selectedDateStr]
     ? (
-        (groupedTrades[selectedDateStr].totalSell -
-          groupedTrades[selectedDateStr].totalBuy) *
+        (groupedFullTrades[selectedDateStr].totalSell -
+          groupedFullTrades[selectedDateStr].totalBuy) *
         100
       ).toFixed(2)
     : null;
@@ -500,7 +444,7 @@ export default function Journal() {
           </div>
         </div>
         <div className="flex-1 bg-white rounded-xl px-10 py-10 shadow-xl">
-          <Calendar groupedTrades={groupedTrades} tradesPerDay={tradesPerDay} />
+          <Calendar groupedTrades={groupedFullTrades} tradesPerDay={tradesPerDay} />
         </div>
       </div>
     </div>

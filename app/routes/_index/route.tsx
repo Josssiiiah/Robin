@@ -1,18 +1,13 @@
 // DEMO ROUTE TO BUILD MAILING LIST
 
 // remix
-import { LoaderFunctionArgs } from "@remix-run/node";
 import {
-  Link,
-  useLoaderData,
   useFetcher,
-  Form,
   useActionData,
   useSubmit,
 } from "@remix-run/react";
 //ui
 import { Button } from "~/components/ui/button";
-import { getSession } from "~/sessions.server";
 //images
 import Dashboard from "~/images/dashboard.png";
 import Journal from "~/images/journal.png";
@@ -24,9 +19,7 @@ import { Footer } from "./footer";
 import { useToast } from "~/components/ui/use-toast";
 
 //icons
-import { FaceIcon } from "@radix-ui/react-icons";
 import { FaThinkPeaks, FaUndo, FaBook, FaRegImages } from "react-icons/fa";
-import { createSupabaseServerClient } from "../supabase.server";
 import { useEffect } from "react";
 import { addToWaitList } from "drizzle/model";
 
